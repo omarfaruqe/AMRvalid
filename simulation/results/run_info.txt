@@ -1,0 +1,7 @@
+Run finished: 2026-10-31 14:13 EDT
+Duration (minutes): 14.2
+Replicates per scenario: 200
+Bootstrap replicates: 200
+Settings: n_lineages = 40, isolates_per_lineage = 25, external_lineages = 200, marker_effect = 3, intercept = -1.5, test_fraction = 0.2, k = 5
+AMRvalid version: 0.0.0.9000
+R version: R version 4.3.3 (2024-02-29)
