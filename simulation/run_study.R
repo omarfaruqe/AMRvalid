@@ -120,30 +120,7 @@ rownames(summ) <- NULL
 utils::write.csv(summ, file.path(out_dir, "summary.csv"), row.names = FALSE)
 
 # Figures -------------------------------------------------------------------
-grDevices::png(file.path(out_dir, "fig_optimism.png"), width = 2000, height = 1100, res = 220)
-graphics::par(mar = c(7, 5, 2, 1))
-reps$label <- factor(paste0(reps$predictor, "/", reps$design, "\n", sub(" lineage effect", "", reps$scenario)),
-                     levels = unique(paste0(summ$predictor, "/", summ$design, "\n",
-                                            sub(" lineage effect", "", summ$scenario))))
-graphics::boxplot(optimism ~ label, data = reps, las = 2, cex.axis = 0.65, outline = FALSE,
-                  ylab = "Internal AUC - AUC on new lineages", xlab = "",
-                  col = ifelse(grepl("random", levels(reps$label)), "grey45", "grey85"))
-graphics::abline(h = 0, lty = 2)
-graphics::legend("topright", fill = c("grey45", "grey85"), legend = c("random split", "lineage-held-out"),
-                 bty = "n", cex = 0.8)
-grDevices::dev.off()
-
-grDevices::png(file.path(out_dir, "fig_coverage.png"), width = 2000, height = 1100, res = 220)
-graphics::par(mar = c(7, 5, 2, 1))
-lin_rows <- summ[summ$design == "lineage", ]
-cov <- rbind(isolate = lin_rows$coverage_isolate_bootstrap, lineage = lin_rows$coverage_lineage_bootstrap)
-colnames(cov) <- paste0(lin_rows$predictor, "\n", sub(" lineage effect", "", lin_rows$scenario))
-graphics::barplot(cov, beside = TRUE, ylim = c(0, 1.1), las = 2, cex.names = 0.7,
-                  col = c("grey45", "grey85"), ylab = "Coverage of true AUC (lineage-held-out design)",
-                  legend.text = c("isolate bootstrap", "lineage bootstrap"),
-                  args.legend = list(x = "top", horiz = TRUE, bty = "n", cex = 0.8))
-graphics::abline(h = 0.95, lty = 2)
-grDevices::dev.off()
+source(file.path("simulation", "make_figures.R"))
 
 info <- c(
   paste("Run finished:", format(Sys.time(), "%Y-%m-%d %H:%M %Z")),

@@ -44,7 +44,18 @@ Rscript simulation/run_study.R 200 7 200
 ```
 
 The arguments are the number of replicates per scenario, CPU cores and
-bootstrap replicates. Results are written to `simulation/results/`:
+bootstrap replicates. To redraw the figures from saved results without
+re-running the study:
+
+```bash
+Rscript simulation/make_figures.R
+```
+
+Figures use a colourblind-safe pair throughout: orange for the naive choice
+(random split, isolate-level bootstrap) and blue for the population-aware one
+(lineage-held-out split, lineage-level bootstrap).
+
+Results are written to `simulation/results/`:
 
 | File | Contents |
 |---|---|

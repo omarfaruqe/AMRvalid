@@ -21,6 +21,15 @@ show how AMRvalid exposes that.
 library(AMRvalid)
 ```
 
+```{r palette, include = FALSE}
+# Colourblind-safe pair used in all figures:
+# orange = naive estimate, blue = population-aware estimate
+col_naive <- "#eb6834"
+col_aware <- "#2a78d6"
+ink_muted <- "#6b6b6b"
+grid_col <- "#e6e6e3"
+```
+
 ## A simulated collection
 
 `amr_simulate()` creates isolates in lineages. Resistance depends on a causal
@@ -80,9 +89,9 @@ colnames(m) <- auc_wide$model
 barplot(m, beside = TRUE, ylim = c(0, 1.15), ylab = "ROC-AUC", yaxt = "n",
         legend.text = c("internal test set", "external unseen lineages"),
         args.legend = list(x = "top", bty = "n", cex = 0.8, horiz = TRUE),
-        col = c("grey35", "grey75"), las = 1, cex.names = 0.8)
-axis(2, at = seq(0, 1, 0.2), las = 1)
-abline(h = 0.5, lty = 2)
+        col = c(col_naive, col_aware), border = NA, las = 1, cex.names = 0.8)
+axis(2, at = seq(0, 1, 0.2), las = 1, lwd = 0)
+abline(h = 0.5, lty = 2, col = ink_muted)
 ```
 
 The memorising predictor looks good under a random split and collapses on new
@@ -108,13 +117,17 @@ d$trend[, c("model_id", "model", "effect", "lower", "upper", "n")]
 
 ```{r distance-plot, echo = FALSE}
 bb <- d$by_band[d$by_band$metric == "roc_auc", ]
-plot(seq_len(nrow(bb)), bb$estimate, ylim = c(0, 1), xaxt = "n", pch = 19,
-     xlab = "Distance to nearest training isolate", ylab = "ROC-AUC", las = 1)
-arrows(seq_len(nrow(bb)), bb$lower, seq_len(nrow(bb)), bb$upper, angle = 90, code = 3, length = 0.05)
+plot(seq_len(nrow(bb)), bb$estimate, ylim = c(0, 1), xlim = c(0.6, nrow(bb) + 0.4), xaxt = "n",
+     type = "n", xlab = "Distance to nearest training isolate", ylab = "ROC-AUC", las = 1, bty = "n")
+abline(h = seq(0, 1, 0.2), col = grid_col)
+lines(seq_len(nrow(bb)), bb$estimate, col = col_aware, lwd = 2)
+arrows(seq_len(nrow(bb)), bb$lower, seq_len(nrow(bb)), bb$upper, angle = 90, code = 3, length = 0.05,
+       col = col_aware, lwd = 2)
+points(seq_len(nrow(bb)), bb$estimate, pch = 21, bg = col_aware, col = "white", cex = 1.8, lwd = 2)
 axis(1, at = seq_len(nrow(bb)), cex.axis = 0.8,
      labels = c("same lineage\n(< 20)", "nearby lineage\n(20-100)", "distant\n(> 100)")[seq_len(nrow(bb))],
-     padj = 0.5)
-abline(h = 0.5, lty = 2)
+     padj = 0.5, lwd = 0)
+abline(h = 0.5, lty = 2, col = ink_muted)
 ```
 
 A positive slope for the squared error means predictions get worse with
