@@ -86,6 +86,9 @@ amr_species_eval <- function(x, threshold = NULL, intermediate = c("exclude", "s
 
 #' @export
 print.amr_eval <- function(x, digits = 3, ...) {
+  if (!all(c("model_id", "dataset_id", "species", "drug", "species_name", "drug_name", "metric", "estimate", "lower", "upper", "numerator", "denominator") %in% names(x)) || is.null(attr(x, "settings"))) {
+    return(print(as.data.frame(unclass_df(x)), ...))
+  }
   s <- attr(x, "settings")
   cat("<amr_eval> ", length(unique(paste(x$model_id, x$dataset_id, x$species, x$drug))),
       " stratum/strata | type: ", s$prediction_type,

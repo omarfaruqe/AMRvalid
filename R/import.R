@@ -161,6 +161,9 @@ to_sir <- function(v) {
 
 #' @export
 print.amr_data <- function(x, ...) {
+  if (!all(c("isolate_id", "model_id", "species", "drug", "prediction_type") %in% names(x))) {
+    return(print(as.data.frame(unclass_df(x)), ...))
+  }
   n_models <- length(unique(x$model_id))
   n_strata <- nrow(unique(as.data.frame(x)[, c("species", "drug"), drop = FALSE]))
   cat("<amr_data> ", nrow(x), " predictions | ",

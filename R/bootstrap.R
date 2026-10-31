@@ -105,6 +105,9 @@ amr_bootstrap <- function(x, group = "isolate_id", B = 2000, threshold = NULL,
 
 #' @export
 print.amr_bootstrap <- function(x, digits = 3, ...) {
+  if (!all(c("model_id", "drug_name", "metric", "estimate", "lower", "upper", "n_groups", "n_valid", "B", "few_groups", "zero_width") %in% names(x)) || is.null(attr(x, "settings"))) {
+    return(print(as.data.frame(unclass_df(x)), ...))
+  }
   s <- attr(x, "settings")
   cat("<amr_bootstrap> resampling unit: ", s$group, " | B = ", s$B, " | ", s$conf * 100,
       "% percentile intervals | threshold: ", if (is.null(s$threshold)) "none" else s$threshold, "\n", sep = "")
@@ -256,6 +259,9 @@ amr_paired_compare <- function(x, models = NULL, group = "isolate_id", B = 2000,
 
 #' @export
 print.amr_paired_compare <- function(x, digits = 3, ...) {
+  if (!all(c("drug_name", "metric", "model_a", "model_b", "difference", "lower", "upper", "n_matched", "n_unmatched", "mcnemar_p", "few_groups") %in% names(x)) || is.null(attr(x, "settings"))) {
+    return(print(as.data.frame(unclass_df(x)), ...))
+  }
   s <- attr(x, "settings")
   cat("<amr_paired_compare> ", s$models[2], " - ", s$models[1], " | resampling unit: ", s$group,
       " | B = ", s$B, " | ", s$conf * 100, "% percentile intervals\n", sep = "")
@@ -350,4 +356,10 @@ local_seed <- function(seed) {
     }
     invisible(NULL)
   }
+}
+
+# Drop AMRvalid classes so a modified result prints as a plain data frame.
+unclass_df <- function(x) {
+  class(x) <- "data.frame"
+  x
 }

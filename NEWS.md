@@ -22,3 +22,6 @@
   lineages or genomic clusters, with warnings when there are few groups.
 * `amr_paired_compare()`: paired bootstrap differences between two models on
   matched isolates, plus an exact McNemar test.
+* `amr_simulate()`: synthetic lineages, genomic distances and predictions from
+  a lineage-memorising and a mechanism-based predictor under random and
+  lineage-held-out splits, with an external set of unseen lineages.

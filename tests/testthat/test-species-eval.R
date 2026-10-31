@@ -45,3 +45,11 @@ test_that("MIC predictions are evaluated with AST metrics only", {
   expect_equal(unique(e$family), "ast")
   expect_equal(e$estimate[e$metric == "essential_agreement"], 2 / 3)
 })
+
+test_that("subsets and reshaped results print as plain data frames", {
+  e <- amr_species_eval(amr_import_predictions(toy_scores()), threshold = 0.5)
+  sub <- e[e$metric == "accuracy", c("model_id", "estimate")]
+  expect_output(print(sub), "estimate")
+  x <- amr_import_predictions(toy_scores())
+  expect_output(print(x[, c("isolate_id", "truth_sir")]), "isolate_id")
+})
