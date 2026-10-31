@@ -15,3 +15,6 @@
 * `amr_validate_splits()`: isolate, lineage, cluster, sequence-type, temporal
   and geographic overlap between training and test isolates, with checks
   against a claimed validation design.
+* `amr_distance_eval()` and `amr_nearest_train_distance()`: performance by
+  distance to the nearest training isolate, with a trend summary of how
+  performance decays as test isolates become less similar to training data.
