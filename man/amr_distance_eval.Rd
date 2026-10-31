@@ -72,6 +72,10 @@ as the odds ratio per standard deviation of distance;
 standard deviation.
 }
 
+For score predictions, each band also reports the calibration intercept
+and slope (see \code{\link[=amr_calibration]{amr_calibration()}}), showing whether a model becomes
+over-confident on isolates unlike its training data.
+
 An odds ratio below 1 (or a positive Brier slope) means performance
 worsens with distance. Intervals are Wald intervals that treat isolates
 as independent; use them as a description, not a test.

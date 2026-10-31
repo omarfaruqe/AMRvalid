@@ -95,6 +95,10 @@ amr_nearest_train_distance <- function(test_ids, train_ids, distances) {
 #'   (the per-isolate Brier score) on distance, reported as the change per
 #'   standard deviation.
 #'
+#' For score predictions, each band also reports the calibration intercept
+#' and slope (see [amr_calibration()]), showing whether a model becomes
+#' over-confident on isolates unlike its training data.
+#'
 #' An odds ratio below 1 (or a positive Brier slope) means performance
 #' worsens with distance. Intervals are Wald intervals that treat isolates
 #' as independent; use them as a description, not a test.
@@ -177,6 +181,10 @@ amr_distance_eval <- function(x, distances, train_manifest = NULL, bands = 3,
     e <- suppressMessages(amr_species_eval(sub, threshold = threshold, intermediate = intermediate,
                                            ci = ci, conf = conf, split = NULL, validate = FALSE))
     e <- as.data.frame(e)
+    if (identical(ptype, "score")) {
+      cal <- calibration_band_rows(sub, intermediate, conf)
+      if (!is.null(cal)) e <- rbind(e, cal[, names(e)])
+    }
     e$band <- b
     by_band[[length(by_band) + 1]] <- e
   }
@@ -306,7 +314,7 @@ print.amr_distance_eval <- function(x, digits = 3, ...) {
   cat("Isolates per band:\n")
   print(table(model = nr$model_id, band = nr$band))
   key_metrics <- c("sensitivity", "specificity", "very_major_error", "major_error",
-                   "roc_auc", "brier", "essential_agreement")
+                   "roc_auc", "brier", "calibration_slope", "essential_agreement")
   bb <- x$by_band[x$by_band$metric %in% key_metrics, , drop = FALSE]
   if (nrow(bb) > 0) {
     cat("\nKey metrics by band:\n")
@@ -330,4 +338,26 @@ print.amr_distance_eval <- function(x, digits = 3, ...) {
     }
   }
   invisible(x)
+}
+
+# Calibration intercept and slope per stratum, in the long metric format of
+# amr_species_eval(), for one distance band.
+calibration_band_rows <- function(sub, intermediate, conf) {
+  cal <- amr_calibration(sub, intermediate = intermediate, conf = conf, split = NULL, min_events = 0)
+  s <- cal$summary
+  if (nrow(s) == 0) return(NULL)
+  cols <- stratum_columns(sub)
+  rows <- lapply(seq_len(nrow(s)), function(i) {
+    first <- s[i, cols, drop = FALSE]
+    data.frame(first[rep(1, 2), , drop = FALSE],
+               species_name = suppressMessages(AMR::mo_name(s$species[i], language = "en")),
+               drug_name = s$drug_name[i], family = "calibration",
+               metric = c("calibration_intercept", "calibration_slope"),
+               estimate = c(s$intercept[i], s$slope[i]),
+               lower = c(s$intercept_lower[i], s$slope_lower[i]),
+               upper = c(s$intercept_upper[i], s$slope_upper[i]),
+               numerator = NA_real_, denominator = s$n[i],
+               row.names = NULL, stringsAsFactors = FALSE)
+  })
+  do.call(rbind, rows)
 }

@@ -1,8 +1,47 @@
-# AMRvalid 0.0.0.9000
+# AMRvalid 0.2.0.9000
 
-* Package scaffold, licence and continuous-integration checks.
+* `amr_calibration()`: calibration-in-the-large (O/E ratio and intercept),
+  calibration slope, expected and maximum calibration error, binned and
+  smoothed reliability curves, optional grouping column, and a `plot()`
+  method drawing reliability diagrams.
+* `amr_distance_eval()` now reports the calibration intercept and slope in
+  each distance band for score predictions.
+
+# AMRvalid 0.2.0
+
+Population-aware evaluation.
+
+* `amr_validate_splits()`: isolate, lineage, cluster, sequence-type, temporal
+  and geographic overlap between training and test isolates, with checks
+  against a claimed validation design.
+* `amr_distance_eval()` and `amr_nearest_train_distance()`: performance by
+  distance to the nearest training isolate, with a trend summary of how
+  performance decays as test isolates become less similar to training data.
+* `amr_bootstrap()`: percentile intervals from resampling isolates,
+  lineages or genomic clusters, with warnings when there are few groups and
+  when intervals have zero width.
+* `amr_paired_compare()`: paired bootstrap differences between two models on
+  matched isolates, plus an exact McNemar test.
+* `amr_simulate()`: synthetic lineages, genomic distances and predictions from
+  a lineage-memorising and a mechanism-based predictor under random and
+  lineage-held-out splits, with an external set of unseen lineages.
+* New vignette, "Why population-aware evaluation matters".
+* Simulation study (`simulation/`, not part of the installed package): random
+  splits overstated a lineage-memorising predictor by +0.20 to +0.33 AUC, and
+  isolate-level bootstrap intervals covered the true AUC in only 50-87% of
+  replicates, against 88-93% for lineage-level intervals.
+* Subsets and reshaped results now print as plain data frames.
+* Figures use a colourblind-safe palette.
+* Citation information via `citation("AMRvalid")`.
+
+# AMRvalid 0.1.0
+
+Core evaluation.
+
 * Data contract (`amr_contract()`, JSON Schema), `amr_import_predictions()`,
-  `validate_amr_data()` and `amr_data_summary()`.
+  `validate_amr_data()` and `amr_data_summary()`. Species and antimicrobial
+  names must match the AMR package exactly by default, because its fuzzy
+  matching can silently map a typo to a different antimicrobial.
 * `amr_metrics()`: sensitivity, specificity, PPV, NPV, accuracy, balanced
   accuracy, F1, MCC, ROC-AUC with DeLong interval, Brier score and log loss.
   No default threshold; I/SDD handled by an explicit `intermediate` policy.
@@ -12,19 +51,3 @@
 * `amr_species_eval()`: per model, dataset, species and antimicrobial
   evaluation; test split only by default; refuses to run on invalid data.
 * `amr_prop_ci()`: Wilson and Clopper-Pearson intervals.
-* `amr_validate_splits()`: isolate, lineage, cluster, sequence-type, temporal
-  and geographic overlap between training and test isolates, with checks
-  against a claimed validation design.
-* `amr_distance_eval()` and `amr_nearest_train_distance()`: performance by
-  distance to the nearest training isolate, with a trend summary of how
-  performance decays as test isolates become less similar to training data.
-* `amr_bootstrap()`: percentile intervals from resampling isolates,
-  lineages or genomic clusters, with warnings when there are few groups.
-* `amr_paired_compare()`: paired bootstrap differences between two models on
-  matched isolates, plus an exact McNemar test.
-* `amr_simulate()`: synthetic lineages, genomic distances and predictions from
-  a lineage-memorising and a mechanism-based predictor under random and
-  lineage-held-out splits, with an external set of unseen lineages.
-* New vignette, "Why population-aware evaluation matters", walking through
-  split checks, internal versus external performance, distance decay and
-  cluster bootstrap intervals on simulated data.
