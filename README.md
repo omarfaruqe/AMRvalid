@@ -48,12 +48,29 @@ validate_amr_data(x)
 amr_species_eval(x, threshold = 0.5)
 ```
 
+## Population-aware evaluation
+
+```r
+# Did lineages, dates or countries leak from training into test?
+amr_validate_splits(x, train_manifest = train_ids, claimed_design = "group")
+
+# How does performance change as test isolates get further from training?
+# `dist` is a matrix or long table of genomic distances (Mash, SKA, SNPs...).
+amr_distance_eval(x, distances = dist, train_manifest = train_ids, threshold = 0.5)
+
+# Intervals that resample whole lineages rather than single isolates
+amr_bootstrap(x, group = "lineage", B = 2000, threshold = 0.5, seed = 1)
+
+# Two models on the same isolates, with paired cluster-bootstrap differences
+amr_paired_compare(x, models = c("old", "new"), group = "lineage", threshold = 0.5)
+```
+
 ## Roadmap
 
 | Release | Scope |
 |---|---|
-| 0.1.0 | Data contract, validation, ML and AST metrics, small-denominator intervals |
-| 0.2.0 | Split-integrity checks, distance-to-training evaluation, cluster bootstrap, paired comparison |
+| 0.1.0 | Data contract, validation, ML and AST metrics, small-denominator intervals (done) |
+| 0.2.0 | Split-integrity checks, distance-to-training evaluation, cluster bootstrap, paired comparison (done); simulation study (next) |
 | 0.3.0 | Calibration, prevalence adjustment, provenance and TRIPOD+AI-aligned reporting |
 
 The full design is in [`docs/AMRvalid_Revised_Architecture_v3.docx`](docs/AMRvalid_Revised_Architecture_v3.docx).

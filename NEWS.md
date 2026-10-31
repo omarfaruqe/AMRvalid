@@ -18,3 +18,7 @@
 * `amr_distance_eval()` and `amr_nearest_train_distance()`: performance by
   distance to the nearest training isolate, with a trend summary of how
   performance decays as test isolates become less similar to training data.
+* `amr_bootstrap()`: percentile intervals from resampling isolates,
+  lineages or genomic clusters, with warnings when there are few groups.
+* `amr_paired_compare()`: paired bootstrap differences between two models on
+  matched isolates, plus an exact McNemar test.
