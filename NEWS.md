@@ -12,6 +12,12 @@
 * `weight_by` in `amr_metrics()`, `amr_ast_agreement()` and
   `amr_species_eval()` gives cluster-weighted metrics in which each lineage
   or genomic cluster counts once, so outbreak clones do not dominate.
+* `amr_provenance()`: what was evaluated and how, each item labelled as
+  checked by AMRvalid, supplied by the analyst or not assessable, and mapped
+  to the TRIPOD+AI checklist (version 11 January 2024).
+* `amr_report()`: Markdown or HTML report with data summary, validation and
+  split checks, performance, calibration, distance-to-training results,
+  group-aware intervals, detected limitations and TRIPOD+AI coverage.
 
 # AMRvalid 0.2.0
 

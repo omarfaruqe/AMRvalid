@@ -40,7 +40,8 @@
 #' Intervals for the intercept and slope are Wald intervals assuming
 #' independent isolates.
 #'
-#' The `curve` element holds a loess-smoothed reliability curve and the
+#' The `curve` element holds a loess-smoothed reliability curve (drawn when
+#' there are at least 20 isolates and 10 distinct predicted values) and the
 #' `bins` element the binned points with Wilson intervals; [plot()] draws
 #' both.
 #'
@@ -161,8 +162,8 @@ calibration_stats <- function(y, p, bins, binning, conf) {
   }
 
   curve <- data.frame()
-  if (n >= 20 && length(unique(p)) >= 5) {
-    fit <- tryCatch(stats::loess(y ~ p, span = 0.75, degree = 2), error = function(e) NULL)
+  if (n >= 20 && length(unique(p)) >= 10) {
+    fit <- tryCatch(suppressWarnings(stats::loess(y ~ p, span = 0.75, degree = 2)), error = function(e) NULL)
     if (!is.null(fit)) {
       grid <- seq(min(p), max(p), length.out = 50)
       curve <- data.frame(predicted = grid,

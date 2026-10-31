@@ -77,7 +77,8 @@ Probabilities are clipped to [1e-6, 1 - 1e-6] before taking logits.
 Intervals for the intercept and slope are Wald intervals assuming
 independent isolates.
 
-The \code{curve} element holds a loess-smoothed reliability curve and the
+The \code{curve} element holds a loess-smoothed reliability curve (drawn when
+there are at least 20 isolates and 10 distinct predicted values) and the
 \code{bins} element the binned points with Wilson intervals; \code{\link[=plot]{plot()}} draws
 both.
 }
