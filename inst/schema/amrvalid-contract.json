@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/omarfaruqe/AMRvalid/inst/schema/amrvalid-contract.json",
+  "title": "AMRvalid prediction record",
+  "description": "One prediction for one isolate, one antimicrobial, one model and one evaluation context. A prediction table is an array of these records (for example a CSV with these column names).",
+  "type": "object",
+  "properties": {
+    "isolate_id": {"type": "string", "minLength": 1, "description": "Stable isolate identifier."},
+    "species": {"type": "string", "description": "Organism name or AMR package 'mo' code, e.g. 'Klebsiella pneumoniae' or 'B_KLBSL_PNMN'."},
+    "drug": {"type": "string", "description": "Antimicrobial name or AMR package 'ab' code, e.g. 'meropenem' or 'MEM'."},
+    "truth_sir": {"type": ["string", "null"], "enum": ["S", "SDD", "I", "R", "NI", null], "description": "Reference category."},
+    "truth_mic": {"type": ["string", "null"], "description": "Reference MIC, e.g. '<=0.25', '2', '>32'."},
+    "prediction_type": {"type": "string", "enum": ["binary", "score", "sir", "mic"]},
+    "probability": {"type": ["number", "null"], "minimum": 0, "maximum": 1, "description": "Predicted probability of resistance."},
+    "prediction": {"type": ["string", "null"], "enum": ["S", "SDD", "I", "R", null], "description": "Predicted category."},
+    "predicted_mic": {"type": ["string", "null"], "description": "Predicted MIC."},
+    "model_id": {"type": "string", "description": "Model or software identifier and version."},
+    "dataset_id": {"type": "string", "description": "Dataset or cohort identifier."},
+    "split": {"type": ["string", "null"], "enum": ["train", "validation", "calibration", "test", null]},
+    "fold_id": {"type": ["string", "null"]},
+    "lineage": {"type": ["string", "null"]},
+    "sequence_type": {"type": ["string", "null"]},
+    "genomic_cluster": {"type": ["string", "null"]},
+    "country": {"type": ["string", "null"]},
+    "collection_date": {"type": ["string", "null"], "format": "date"},
+    "breakpoint_standard": {"type": ["string", "null"], "description": "Breakpoint authority and version, e.g. 'EUCAST 2025'."},
+    "ast_method": {"type": ["string", "null"]}
+  },
+  "required": ["isolate_id", "species", "drug"],
+  "anyOf": [
+    {"required": ["truth_sir"]},
+    {"required": ["truth_mic"]}
+  ],
+  "additionalProperties": true
+}
