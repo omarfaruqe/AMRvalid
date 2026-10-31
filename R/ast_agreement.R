@@ -4,6 +4,8 @@
 #' a genome-based prediction) with a reference method.
 #'
 #' @inheritParams amr_metrics
+#' @param weight_by Optional column for cluster-weighted rates; see
+#'   [amr_metrics()].
 #' @param vme_denominator Denominator for very major and major error rates:
 #'   `"class"` (default) divides very major errors by reference-resistant
 #'   isolates and major errors by reference-susceptible isolates;
@@ -50,15 +52,24 @@
 #' )
 #' amr_ast_agreement(amr_import_predictions(preds))
 amr_ast_agreement <- function(x, threshold = NULL, vme_denominator = c("class", "all"),
-                              ci = c("wilson", "clopper-pearson"), conf = 0.95) {
+                              ci = c("wilson", "clopper-pearson"), conf = 0.95, weight_by = NULL) {
   check_amr_data(x)
   vme_denominator <- match.arg(vme_denominator)
   ci <- match.arg(ci)
   ptype <- x$prediction_type[1]
   check_threshold(threshold, ptype)
   out <- list()
-  add_prop <- function(name, num, den) {
-    tab <- amr_prop_ci(num, den, method = ci, conf = conf)
+  weighted <- !is.null(weight_by)
+  # num_mask and den_mask are logical vectors over rows with weights w
+  add_prop <- function(name, num_mask, den_mask, w) {
+    num <- sum(w[num_mask & den_mask]); den <- sum(w[den_mask])
+    if (weighted && den > 0) {
+      neff <- den^2 / sum(w[den_mask]^2)
+      tab <- amr_prop_ci(num / den * neff, neff, method = ci, conf = conf)
+      tab$estimate <- num / den
+    } else {
+      tab <- amr_prop_ci(num, den, method = ci, conf = conf)
+    }
     out[[length(out) + 1]] <<- metric_row(name, tab$estimate, tab$lower, tab$upper, num, den)
   }
 
@@ -74,22 +85,23 @@ amr_ast_agreement <- function(x, threshold = NULL, vme_denominator = c("class", 
     truth <- as.character(x$truth_sir)
     cats <- c("S", "SDD", "I", "R")
     ok <- truth %in% cats & pred %in% cats
+    w <- cluster_weights(x, weight_by, ok)[ok]
     t <- truth[ok]; p <- pred[ok]
     n <- length(t)
+    all_rows <- rep(TRUE, n)
     mid <- c("I", "SDD")
-    vme <- sum(t == "R" & p == "S")
-    me <- sum(t == "S" & p == "R")
-    minor <- sum((t %in% mid & p %in% c("S", "R")) | (t %in% c("S", "R") & p %in% mid))
+    minor <- (t %in% mid & p %in% c("S", "R")) | (t %in% c("S", "R") & p %in% mid)
     out[[1]] <- metric_row("n", n, NA, NA, n, NA)
-    add_prop("categorical_agreement", sum(t == p), n)
-    add_prop("very_major_error", vme, if (vme_denominator == "class") sum(t == "R") else n)
-    add_prop("major_error", me, if (vme_denominator == "class") sum(t == "S") else n)
-    add_prop("minor_error", minor, n)
+    add_prop("categorical_agreement", t == p, all_rows, w)
+    add_prop("very_major_error", t == "R" & p == "S", if (vme_denominator == "class") t == "R" else all_rows, w)
+    add_prop("major_error", t == "S" & p == "R", if (vme_denominator == "class") t == "S" else all_rows, w)
+    add_prop("minor_error", minor, all_rows, w)
   }
 
   if (all(c("predicted_mic", "truth_mic") %in% names(x))) {
     ea <- essential_agreement(x$predicted_mic, x$truth_mic)
-    add_prop("essential_agreement", ea$agree, ea$n)
+    w_mic <- cluster_weights(x, weight_by, ea$ok)[ea$ok]
+    add_prop("essential_agreement", ea$agree_each, rep(TRUE, length(ea$agree_each)), w_mic)
     out[[length(out) + 1]] <- metric_row("bias_log2", ea$bias, NA, NA, NA, ea$n_on_scale)
   } else if (identical(ptype, "mic")) {
     stop("MIC predictions need a 'truth_mic' column for essential agreement.", call. = FALSE)
@@ -98,7 +110,7 @@ amr_ast_agreement <- function(x, threshold = NULL, vme_denominator = c("class", 
   res <- do.call(rbind, out)
   rownames(res) <- NULL
   attr(res, "settings") <- list(threshold = threshold, vme_denominator = vme_denominator,
-                                ci = ci, conf = conf)
+                                ci = ci, conf = conf, weight_by = weight_by)
   res
 }
 
@@ -119,5 +131,6 @@ essential_agreement <- function(pred, truth) {
                          abs(log2(pv) - log2(tv)) <= 1 + 1e-9))
   on_scale <- top == "=" & pop == "="
   bias <- if (any(on_scale)) mean(log2(pv[on_scale]) - log2(tv[on_scale])) else NA_real_
-  list(agree = sum(agree), n = length(agree), bias = bias, n_on_scale = sum(on_scale))
+  list(agree = sum(agree), n = length(agree), bias = bias, n_on_scale = sum(on_scale),
+       agree_each = agree, ok = ok)
 }

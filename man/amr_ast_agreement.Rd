@@ -9,7 +9,8 @@ amr_ast_agreement(
   threshold = NULL,
   vme_denominator = c("class", "all"),
   ci = c("wilson", "clopper-pearson"),
-  conf = 0.95
+  conf = 0.95,
+  weight_by = NULL
 )
 }
 \arguments{
@@ -29,6 +30,9 @@ differ, so always report which one you used.}
 \item{ci}{Interval method for proportions, passed to \code{\link[=amr_prop_ci]{amr_prop_ci()}}.}
 
 \item{conf}{Confidence level.}
+
+\item{weight_by}{Optional column for cluster-weighted rates; see
+\code{\link[=amr_metrics]{amr_metrics()}}.}
 }
 \value{
 A data frame with columns \code{metric}, \code{estimate}, \code{lower},

@@ -9,7 +9,9 @@ amr_metrics(
   threshold = NULL,
   intermediate = c("exclude", "susceptible", "resistant"),
   ci = c("wilson", "clopper-pearson"),
-  conf = 0.95
+  conf = 0.95,
+  target_prevalence = NULL,
+  weight_by = NULL
 )
 }
 \arguments{
@@ -28,13 +30,25 @@ always excluded.}
 \item{ci}{Interval method for proportions, passed to \code{\link[=amr_prop_ci]{amr_prop_ci()}}.}
 
 \item{conf}{Confidence level.}
+
+\item{target_prevalence}{Optional proportion resistant in the setting
+where the predictor will be used. Adds \code{ppv_at_target_prevalence} and
+\code{npv_at_target_prevalence}, computed from sensitivity and specificity,
+because PPV and NPV depend on prevalence and public collections often
+over-represent resistant isolates.}
+
+\item{weight_by}{Optional column (e.g. \code{"genomic_cluster"} or
+\code{"lineage"}) for cluster-weighted metrics: every group contributes a
+total weight of 1, shared equally by its isolates, so a large outbreak
+clone counts as much as a single sporadic isolate. Rows with a missing
+label are their own group.}
 }
 \value{
 A data frame with one row per metric and columns \code{metric},
 \code{estimate}, \code{lower}, \code{upper}, \code{numerator} and \code{denominator}. Metrics
 without a closed-form interval (balanced accuracy, F1, MCC, Brier
-score, log loss) have \code{NA} bounds; group-aware bootstrap intervals are
-planned.
+score, log loss) have \code{NA} bounds; use \code{\link[=amr_bootstrap]{amr_bootstrap()}} for
+group-aware intervals.
 }
 \description{
 Computes machine-learning performance metrics for the rows of an
@@ -47,6 +61,17 @@ ROC-AUC is computed with the Mann-Whitney statistic (ties count one
 half) and its interval with the DeLong variance. Row-level intervals
 assume isolates are independent, which is optimistic when isolates are
 clonally related.
+
+Prevalence-adjusted values use
+PPV = sens x p / (sens x p + (1 - spec) x (1 - p)) and
+NPV = spec x (1 - p) / (spec x (1 - p) + (1 - sens) x p). Both increase
+with sensitivity and specificity, so their bounds combine the lower (and
+upper) bounds of the two; these bounds are conservative.
+
+With \code{weight_by}, numerators and denominators are sums of weights, and
+proportion intervals use the Kish effective sample size
+(sum of weights squared / sum of squared weights). The AUC becomes a
+weighted Mann-Whitney statistic without a closed-form interval.
 }
 \examples{
 preds <- data.frame(
@@ -54,9 +79,15 @@ preds <- data.frame(
   species = "K. pneumoniae",
   drug = "meropenem",
   truth = c("R", "R", "R", "S", "S", "S", "S", "R"),
-  probability = c(0.91, 0.75, 0.30, 0.10, 0.20, 0.65, 0.05, 0.88)
+  probability = c(0.91, 0.75, 0.30, 0.10, 0.20, 0.65, 0.05, 0.88),
+  lineage = c("ST258", "ST258", "ST258", "ST11", "ST15", "ST15", "ST307", "ST147")
 )
-amr_metrics(amr_import_predictions(preds), threshold = 0.5)
+x <- amr_import_predictions(preds)
+amr_metrics(x, threshold = 0.5)
+# PPV and NPV where 10\% of isolates are resistant
+amr_metrics(x, threshold = 0.5, target_prevalence = 0.1)
+# each lineage counts once
+amr_metrics(x, threshold = 0.5, weight_by = "lineage")
 }
 \references{
 DeLong ER, DeLong DM, Clarke-Pearson DL (1988). Comparing the areas

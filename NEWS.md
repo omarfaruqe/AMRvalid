@@ -6,6 +6,12 @@
   method drawing reliability diagrams.
 * `amr_distance_eval()` now reports the calibration intercept and slope in
   each distance band for score predictions.
+* `target_prevalence` in `amr_metrics()` and `amr_species_eval()` adds PPV
+  and NPV at the prevalence of the setting where the predictor will be used;
+  `amr_ppv_npv()` does the conversion directly.
+* `weight_by` in `amr_metrics()`, `amr_ast_agreement()` and
+  `amr_species_eval()` gives cluster-weighted metrics in which each lineage
+  or genomic cluster counts once, so outbreak clones do not dominate.
 
 # AMRvalid 0.2.0
 

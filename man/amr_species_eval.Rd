@@ -12,7 +12,9 @@ amr_species_eval(
   ci = c("wilson", "clopper-pearson"),
   conf = 0.95,
   split = "test",
-  validate = TRUE
+  validate = TRUE,
+  target_prevalence = NULL,
+  weight_by = NULL
 )
 }
 \arguments{
@@ -44,6 +46,10 @@ performance by accident. Use \code{NULL} to evaluate all rows.}
 
 \item{validate}{If \code{TRUE} (default), run \code{\link[=validate_amr_data]{validate_amr_data()}} first and
 stop if it reports errors.}
+
+\item{target_prevalence, weight_by}{Passed to \code{\link[=amr_metrics]{amr_metrics()}} (and
+\code{weight_by} to \code{\link[=amr_ast_agreement]{amr_ast_agreement()}}): PPV and NPV at a target
+prevalence, and cluster-weighted metrics.}
 }
 \value{
 An object of class \code{amr_eval}: a long data frame with the
