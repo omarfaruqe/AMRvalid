@@ -30,5 +30,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Md Omar Faruqe \email{faruqe@ru.ac.bd} (\href{https://orcid.org/0000-0002-1226-7226}{ORCID}) [copyright holder]
 
+Authors:
+\itemize{
+  \item Md Omar Faruqe \email{faruqe@ru.ac.bd} (\href{https://orcid.org/0000-0002-1226-7226}{ORCID}) [copyright holder]
+}
+
 }
 \keyword{internal}
