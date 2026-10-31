@@ -25,3 +25,6 @@
 * `amr_simulate()`: synthetic lineages, genomic distances and predictions from
   a lineage-memorising and a mechanism-based predictor under random and
   lineage-held-out splits, with an external set of unseen lineages.
+* New vignette, "Why population-aware evaluation matters", walking through
+  split checks, internal versus external performance, distance decay and
+  cluster bootstrap intervals on simulated data.

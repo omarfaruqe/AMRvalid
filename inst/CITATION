@@ -1,0 +1,14 @@
+bibentry(
+  bibtype = "Manual",
+  title = "{AMRvalid}: Population-Aware Evaluation of Antimicrobial Resistance Predictions",
+  author = person(given = c("Md", "Omar"), family = "Faruqe", email = "faruqe@ru.ac.bd",
+                  comment = c(ORCID = "0000-0002-1226-7226")),
+  year = "2026",
+  note = paste("R package version", meta$Version),
+  url = "https://github.com/omarfaruqe/AMRvalid",
+  textVersion = paste0(
+    "Faruqe MO (2026). AMRvalid: Population-Aware Evaluation of ",
+    "Antimicrobial Resistance Predictions. R package version ", meta$Version,
+    ". https://github.com/omarfaruqe/AMRvalid"
+  )
+)
