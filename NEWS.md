@@ -12,3 +12,6 @@
 * `amr_species_eval()`: per model, dataset, species and antimicrobial
   evaluation; test split only by default; refuses to run on invalid data.
 * `amr_prop_ci()`: Wilson and Clopper-Pearson intervals.
+* `amr_validate_splits()`: isolate, lineage, cluster, sequence-type, temporal
+  and geographic overlap between training and test isolates, with checks
+  against a claimed validation design.
