@@ -1,0 +1,30 @@
+Package: AMRvalid
+Title: Population-Aware Evaluation of Antimicrobial Resistance Predictions
+Version: 0.0.0.9000
+Authors@R:
+    person("Md Omar", "Faruqe", , "faruqe@ru.ac.bd", role = c("aut", "cre", "cph"),
+           comment = c(ORCID = "0000-0002-1226-7226"))
+Description: Evaluates externally generated antimicrobial resistance (AMR)
+    phenotype predictions against phenotypic reference results. Provides a
+    documented data contract, input validation, species-antimicrobial
+    stratified classification metrics, antimicrobial susceptibility testing
+    agreement metrics (categorical agreement, very major, major and minor
+    errors, essential agreement) and interval estimates suitable for small
+    denominators. Models are not trained inside the package.
+License: MIT + file LICENSE
+URL: https://github.com/omarfaruqe/AMRvalid
+BugReports: https://github.com/omarfaruqe/AMRvalid/issues
+Depends:
+    R (>= 4.1.0)
+Imports:
+    AMR (>= 3.0.0),
+    stats,
+    utils
+Suggests:
+    jsonlite,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Encoding: UTF-8
+Language: en-GB
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
