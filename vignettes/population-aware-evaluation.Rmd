@@ -1,0 +1,154 @@
+---
+title: "Why population-aware evaluation matters"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Why population-aware evaluation matters}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 6.5, fig.height = 4)
+```
+
+Bacterial isolates are not independent. Isolates from the same lineage share
+most of their genome and, often, their resistance phenotype. A predictor can
+look accurate simply because test isolates have close relatives in the
+training data. This vignette uses simulated data, where the truth is known, to
+show how AMRvalid exposes that.
+
+```{r setup}
+library(AMRvalid)
+```
+
+## A simulated collection
+
+`amr_simulate()` creates isolates in lineages. Resistance depends on a causal
+marker and on a lineage effect that is inherited clonally but not explained by
+the marker. Two fixed predictors are then applied:
+
+* **knn** predicts from the 5 genomically nearest training isolates, so it
+  memorises lineages;
+* **marker** predicts from the marker alone, so it learns the mechanism.
+
+Each is evaluated under a **random** split and a **lineage-held-out** split,
+and on an **external** set of lineages never seen in training.
+
+```{r simulate}
+sim <- amr_simulate(n_lineages = 30, isolates_per_lineage = 15,
+                    external_lineages = 30, seed = 2026)
+x <- amr_import_predictions(sim$predictions)
+x
+```
+
+## Step 1: check the split
+
+Before trusting any number, check what the split actually separates.
+
+```{r splits}
+checks <- amr_validate_splits(x, train_manifest = sim$train_manifest, group = "lineage")
+checks$consistent_designs
+```
+
+Both designs keep isolates apart, but only the lineage-held-out design keeps
+lineages apart. Claiming lineage-level generalisation for the random split
+fails:
+
+```{r claim}
+random_only <- x[x$model_id == "knn/random" & x$dataset_id == "internal", ]
+amr_validate_splits(random_only, train_manifest = sim$train_manifest,
+                    group = "lineage", claimed_design = "group")
+```
+
+## Step 2: internal versus external performance
+
+The external lineages approximate what happens when the predictor meets new
+strains.
+
+```{r optimism}
+e <- suppressMessages(amr_species_eval(x, validate = FALSE))
+auc <- as.data.frame(e)[e$metric == "roc_auc", c("model_id", "dataset_id", "estimate")]
+auc_wide <- reshape(auc, idvar = "model_id", timevar = "dataset_id", direction = "wide")
+names(auc_wide) <- c("model", "external", "internal")
+auc_wide$optimism <- auc_wide$internal - auc_wide$external
+auc_wide[, c("model", "internal", "external", "optimism")]
+```
+
+```{r optimism-plot, echo = FALSE}
+m <- t(as.matrix(auc_wide[, c("internal", "external")]))
+colnames(m) <- auc_wide$model
+barplot(m, beside = TRUE, ylim = c(0, 1.15), ylab = "ROC-AUC", yaxt = "n",
+        legend.text = c("internal test set", "external unseen lineages"),
+        args.legend = list(x = "top", bty = "n", cex = 0.8, horiz = TRUE),
+        col = c("grey35", "grey75"), las = 1, cex.names = 0.8)
+axis(2, at = seq(0, 1, 0.2), las = 1)
+abline(h = 0.5, lty = 2)
+```
+
+The memorising predictor looks good under a random split and collapses on new
+lineages. The lineage-held-out split is less optimistic, though with only six
+test lineages it is still noisy. The marker predictor is stable because it
+learned the mechanism.
+
+## Step 3: performance against distance to training
+
+`amr_distance_eval()` makes the same point without needing an external
+dataset: it asks how performance changes as test isolates become less similar
+to anything in training.
+
+```{r distance}
+knn_random <- x[x$model_id == "knn/random", ]
+knn_random$dataset_id <- "all test isolates"
+# Isolates within a lineage are less than about 20 units apart in this simulation
+d <- amr_distance_eval(knn_random, distances = sim$distances,
+                       train_manifest = sim$train_manifest, bands = c(0, 20, 100, Inf))
+table(d$nearest$band)
+d$trend[, c("model_id", "model", "effect", "lower", "upper", "n")]
+```
+
+```{r distance-plot, echo = FALSE}
+bb <- d$by_band[d$by_band$metric == "roc_auc", ]
+plot(seq_len(nrow(bb)), bb$estimate, ylim = c(0, 1), xaxt = "n", pch = 19,
+     xlab = "Distance to nearest training isolate", ylab = "ROC-AUC", las = 1)
+arrows(seq_len(nrow(bb)), bb$lower, seq_len(nrow(bb)), bb$upper, angle = 90, code = 3, length = 0.05)
+axis(1, at = seq_len(nrow(bb)), cex.axis = 0.8,
+     labels = c("same lineage\n(< 20)", "nearby lineage\n(20-100)", "distant\n(> 100)")[seq_len(nrow(bb))],
+     padj = 0.5)
+abline(h = 0.5, lty = 2)
+```
+
+A positive slope for the squared error means predictions get worse with
+distance. Test isolates with a relative from the same lineage in training are
+easy; isolates from other lineages are close to a coin toss.
+
+## Step 4: intervals that respect clustering
+
+Resampling single isolates treats related isolates as independent and gives
+intervals that are too narrow. Resampling whole lineages does not. Here both
+are applied to the marker predictor on the external set (30 lineages of 15
+isolates).
+
+```{r bootstrap}
+ext <- x[x$model_id == "marker/lineage" & x$dataset_id == "external", ]
+by_isolate <- as.data.frame(amr_bootstrap(ext, group = "isolate_id", B = 300, seed = 1))
+by_lineage <- as.data.frame(amr_bootstrap(ext, group = "lineage", B = 300, seed = 1))
+ci <- rbind(
+  isolate = unlist(by_isolate[by_isolate$metric == "roc_auc", c("estimate", "lower", "upper")]),
+  lineage = unlist(by_lineage[by_lineage$metric == "roc_auc", c("estimate", "lower", "upper")])
+)
+cbind(ci, width = ci[, "upper"] - ci[, "lower"])
+```
+
+The lineage interval is substantially wider because 450 isolates carry the
+information of only 30 independent lineages. The isolate-level interval
+overstates precision.
+
+## Take-aways
+
+1. Check the split with `amr_validate_splits()` before reporting performance.
+2. Prefer lineage- or cluster-held-out designs, or external datasets, when the
+   claim is about new strains.
+3. Use `amr_distance_eval()` to show how performance depends on similarity to
+   the training data.
+4. Use `amr_bootstrap()` with `group = "lineage"` (or genomic clusters) so the
+   uncertainty reflects the number of independent lineages, not isolates.
