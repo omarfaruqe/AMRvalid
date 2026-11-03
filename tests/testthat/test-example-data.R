@@ -10,7 +10,7 @@ test_that("example data loads and follows the data contract", {
   expect_true(is.character(d$genomic_cluster))
   x <- amr_import_predictions(d)
   expect_equal(unique(x$prediction_type), "binary")
-  v <- validate_amr_data(x)
+  v <- amr_validate(x)
   expect_true(v$ok)
 })
 

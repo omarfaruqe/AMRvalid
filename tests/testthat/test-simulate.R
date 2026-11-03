@@ -6,7 +6,7 @@ test_that("simulation returns importable predictions with the expected structure
                   c("knn/random", "knn/lineage", "marker/random", "marker/lineage"))
   expect_equal(dim(sim$distances), c(300, 300))
   x <- amr_import_predictions(sim$predictions)
-  expect_true(validate_amr_data(x)$ok)
+  expect_true(amr_validate(x)$ok)
   expect_true(all(x$probability >= 0 & x$probability <= 1))
 })
 

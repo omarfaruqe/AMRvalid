@@ -44,7 +44,7 @@ differ, so always report which one you used.}
 Defaults to \code{"test"}, so training predictions are not reported as
 performance by accident. Use \code{NULL} to evaluate all rows.}
 
-\item{validate}{If \code{TRUE} (default), run \code{\link[=validate_amr_data]{validate_amr_data()}} first and
+\item{validate}{If \code{TRUE} (default), run \code{\link[=amr_validate]{amr_validate()}} first and
 stop if it reports errors.}
 
 \item{target_prevalence, weight_by}{Passed to \code{\link[=amr_metrics]{amr_metrics()}} (and

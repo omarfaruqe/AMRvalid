@@ -23,8 +23,8 @@
 #'   truth = c("R", "R", "S"),
 #'   probability = c(0.9, 0.8, 1.4)
 #' )
-#' validate_amr_data(amr_import_predictions(preds))
-validate_amr_data <- function(x, min_n = 10, min_resistant = 5) {
+#' amr_validate(amr_import_predictions(preds))
+amr_validate <- function(x, min_n = 10, min_resistant = 5) {
   if (!inherits(x, "amr_data")) {
     stop("`x` must be an amr_data object; use amr_import_predictions() first.", call. = FALSE)
   }

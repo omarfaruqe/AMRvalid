@@ -40,7 +40,7 @@ clusters, and the largest cluster holds
 isolates. That structure matters below.
 
 ```{r validate}
-validate_amr_data(x)
+amr_validate(x)
 ```
 
 The reference contains intermediate (I) results. The rules only predict S

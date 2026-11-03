@@ -6,7 +6,7 @@
 #'
 #' The core workflow is:
 #' 1. [amr_import_predictions()] maps a table onto the AMRvalid data contract.
-#' 2. [validate_amr_data()] reports blocking errors and warnings.
+#' 2. [amr_validate()] reports blocking errors and warnings.
 #' 3. [amr_metrics()], [amr_ast_agreement()] and [amr_species_eval()]
 #'    compute performance per species-antimicrobial stratum.
 #'

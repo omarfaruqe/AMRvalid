@@ -58,13 +58,13 @@ test_that("fuzzy matches are rejected in strict mode and reported otherwise", {
   expect_true(is.na(x$species[2]))
   co <- attr(x, "coercion")
   expect_equal(co$status[co$input == "notadrugatall"], "rejected")
-  v <- validate_amr_data(x)
+  v <- amr_validate(x)
   expect_false(v$ok)
   expect_true(all(c("drug", "species") %in% v$issues$check))
 
   y <- amr_import_predictions(d, strict = FALSE)
   expect_false(is.na(y$drug[1]))
-  expect_true("approximate_match" %in% validate_amr_data(y)$issues$check)
+  expect_true("approximate_match" %in% amr_validate(y)$issues$check)
 })
 
 test_that("exact names, codes, abbreviations and short names are accepted", {

@@ -44,7 +44,7 @@ preds <- data.frame(
 )
 
 x <- amr_import_predictions(preds)
-validate_amr_data(x)
+amr_validate(x)
 amr_species_eval(x, threshold = 0.5)
 ```
 

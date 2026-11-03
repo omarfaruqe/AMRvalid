@@ -28,7 +28,7 @@ in the \code{source} attribute).}
 \item{strict}{If \code{TRUE} (default), species and antimicrobial names must
 match an AMR package name, code, abbreviation or synonym exactly
 (ignoring case and punctuation). Approximate matches are set to \code{NA},
-which \code{\link[=validate_amr_data]{validate_amr_data()}} reports as errors. The AMR package matches
+which \code{\link[=amr_validate]{amr_validate()}} reports as errors. The AMR package matches
 names fuzzily, so without this check a typo can silently become a
 different antimicrobial. If \code{FALSE}, approximate matches are kept and
 reported as warnings.}
@@ -40,7 +40,7 @@ A data frame of class \code{amr_data}.
 Renames columns, coerces identifiers to AMR package classes, converts
 predictions to a common representation and detects the prediction type.
 The function never drops rows; problems are reported by
-\code{\link[=validate_amr_data]{validate_amr_data()}}.
+\code{\link[=amr_validate]{amr_validate()}}.
 }
 \details{
 A column called \code{truth} is treated as \code{truth_sir}. Predicted classes may

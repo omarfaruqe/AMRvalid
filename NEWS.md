@@ -4,6 +4,9 @@
   rows by default, like the other evaluation functions. Previously they used
   every row, so training predictions could be counted as performance. Use
   `split = NULL` for the old behaviour.
+* `validate_amr_data()` is renamed `amr_validate()`, so every exported
+  function starts with `amr_`. The old name still works, with a deprecation
+  warning.
 
 # AMRvalid 0.3.0
 

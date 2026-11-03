@@ -3,7 +3,7 @@
 #' Renames columns, coerces identifiers to AMR package classes, converts
 #' predictions to a common representation and detects the prediction type.
 #' The function never drops rows; problems are reported by
-#' [validate_amr_data()].
+#' [amr_validate()].
 #'
 #' @param data A data frame with one row per prediction.
 #' @param mapping Optional named character vector mapping contract field
@@ -16,7 +16,7 @@
 #' @param strict If `TRUE` (default), species and antimicrobial names must
 #'   match an AMR package name, code, abbreviation or synonym exactly
 #'   (ignoring case and punctuation). Approximate matches are set to `NA`,
-#'   which [validate_amr_data()] reports as errors. The AMR package matches
+#'   which [amr_validate()] reports as errors. The AMR package matches
 #'   names fuzzily, so without this check a typo can silently become a
 #'   different antimicrobial. If `FALSE`, approximate matches are kept and
 #'   reported as warnings.

@@ -9,7 +9,7 @@
 #' @param split Which partition to evaluate when a `split` column exists.
 #'   Defaults to `"test"`, so training predictions are not reported as
 #'   performance by accident. Use `NULL` to evaluate all rows.
-#' @param validate If `TRUE` (default), run [validate_amr_data()] first and
+#' @param validate If `TRUE` (default), run [amr_validate()] first and
 #'   stop if it reports errors.
 #' @param target_prevalence,weight_by Passed to [amr_metrics()] (and
 #'   `weight_by` to [amr_ast_agreement()]): PPV and NPV at a target
@@ -38,7 +38,7 @@ amr_species_eval <- function(x, threshold = NULL, intermediate = c("exclude", "s
   vme_denominator <- match.arg(vme_denominator)
   ci <- match.arg(ci)
   if (validate) {
-    v <- validate_amr_data(x, min_n = 0, min_resistant = 0)
+    v <- amr_validate(x, min_n = 0, min_resistant = 0)
     if (!v$ok) {
       print(v)
       stop("Validation failed; fix the errors above or set `validate = FALSE`.", call. = FALSE)

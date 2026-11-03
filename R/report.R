@@ -239,7 +239,7 @@ amr_report <- function(x, ..., model_info = list(), dataset_info = list(), file 
   res <- collect_results(objs)
   prov <- amr_provenance(x, ..., model_info = model_info, dataset_info = dataset_info)
   v <- res$amr_validation
-  if (is.null(v)) v <- validate_amr_data(x)
+  if (is.null(v)) v <- amr_validate(x)
   L <- character()
   h <- function(...) L <<- c(L, ...)
   h(paste0("# ", title), "",
