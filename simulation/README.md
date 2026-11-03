@@ -75,7 +75,8 @@ lineages are new lineages too.
 
 ## Results (200 replicates per scenario, B = 200)
 
-Run on 31 October 2026 (see `results/run_info.txt`).
+Run on 2 November 2026 with the bootstrap seeded per replicate, so results are
+identical on any machine and any number of cores (see `results/run_info.txt`).
 
 **Optimism** (mean internal AUC minus true AUC on new lineages; 5th–95th
 percentile in brackets):
@@ -94,14 +95,14 @@ removed the bias, at the price of noisier estimates from only 8 test lineages.
 
 | Scenario | Predictor | Isolate bootstrap | Lineage bootstrap |
 |---|---|---|---|
-| Weak | knn | 61% | 92% |
-| Weak | marker | 87% | 90% |
-| Moderate | knn | 54% | 92% |
-| Moderate | marker | 64% | 91% |
-| Strong | knn | 50% | 93% |
-| Strong | marker | 52% | 88% |
+| Weak | knn | 59% | 92% |
+| Weak | marker | 87% | 88% |
+| Moderate | knn | 55% | 93% |
+| Moderate | marker | 62% | 92% |
+| Strong | knn | 49% | 93% |
+| Strong | marker | 53% | 86% |
 
 Isolate-level intervals missed the true value up to half the time. Lineage-level
-intervals were close to nominal; their remaining shortfall (88–93% rather than
+intervals were close to nominal; their remaining shortfall (86–93% rather than
 95%) reflects having only 8 independent lineages, which is why
 `amr_bootstrap()` warns when there are fewer than 20 groups.

@@ -40,8 +40,10 @@ auc_of <- function(x) {
   m$estimate[m$metric == "roc_auc"]
 }
 
-boot_ci <- function(x, group) {
-  b <- as.data.frame(amr_bootstrap(x, group = group, B = B, split = NULL))
+# Each bootstrap gets its own seed, so results do not depend on the number of
+# cores or on the order in which replicates run.
+boot_ci <- function(x, group, seed) {
+  b <- as.data.frame(amr_bootstrap(x, group = group, B = B, split = NULL, seed = seed))
   b <- b[b$metric == "roc_auc", ]
   c(lower = b$lower, upper = b$upper, n_groups = b$n_groups)
 }
@@ -52,16 +54,19 @@ one_replicate <- function(r, sc) {
                       external_lineages = settings$external_lineages,
                       marker_effect = settings$marker_effect, lineage_sd = sc$lineage_sd,
                       intercept = settings$intercept, test_fraction = settings$test_fraction,
-                      k = settings$k, return_distances = FALSE, seed = 100000 * match(sc$scenario, scenarios$scenario) + r)
+                      k = settings$k, return_distances = FALSE,
+                      seed = 100000 * match(sc$scenario, scenarios$scenario) + r)
+  base_seed <- 1e7 * match(sc$scenario, scenarios$scenario) + 1000 * r
   x <- amr_import_predictions(sim$predictions)
   rows <- list()
-  for (model in unique(x$model_id)) {
+  for (model in sort(unique(x$model_id))) {
+    model_seed <- base_seed + 10 * match(model, sort(unique(x$model_id)))
     internal <- x[x$model_id == model & x$dataset_id == "internal", ]
     external <- x[x$model_id == model & x$dataset_id == "external", ]
     truth <- auc_of(external)
     est <- auc_of(internal)
-    ci_iso <- boot_ci(internal, "isolate_id")
-    ci_lin <- boot_ci(internal, "lineage")
+    ci_iso <- boot_ci(internal, "isolate_id", model_seed + 1)
+    ci_lin <- boot_ci(internal, "lineage", model_seed + 2)
     rows[[length(rows) + 1]] <- data.frame(
       scenario = sc$scenario, lineage_sd = sc$lineage_sd, replicate = r,
       predictor = sub("/.*", "", model), design = sub(".*/", "", model),

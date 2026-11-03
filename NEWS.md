@@ -18,6 +18,10 @@
 * `amr_report()`: Markdown or HTML report with data summary, validation and
   split checks, performance, calibration, distance-to-training results,
   group-aware intervals, detected limitations and TRIPOD+AI coverage.
+* Simulation study: each bootstrap is now seeded, so results no longer depend
+  on the number of CPU cores. Re-run results: isolate-level intervals covered
+  the true AUC in 49-87% of replicates, lineage-level intervals in 86-93%;
+  optimism is unchanged.
 
 # AMRvalid 0.2.0
 

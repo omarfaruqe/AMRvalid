@@ -6,3 +6,6 @@
 *.Rcheck/
 *.tar.gz
 ~$*.docx
+inst/doc
+/doc/
+/Meta/
