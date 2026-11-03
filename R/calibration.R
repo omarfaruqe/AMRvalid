@@ -205,6 +205,11 @@ print.amr_calibration <- function(x, digits = 3, ...) {
 #' @param ... Unused.
 #' @return `x`, invisibly.
 #' @export
+#' @examples
+#' sim <- amr_simulate(n_lineages = 20, isolates_per_lineage = 10,
+#'                     external_lineages = 20, return_distances = FALSE, seed = 1)
+#' x <- amr_import_predictions(sim$predictions)
+#' plot(amr_calibration(x[x$dataset_id == "external" & x$model_id == "marker/lineage", ]))
 plot.amr_calibration <- function(x, max_panels = 12, ...) {
   cols <- x$settings$strata
   s <- x$summary

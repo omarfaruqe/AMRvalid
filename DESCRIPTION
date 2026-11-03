@@ -4,13 +4,20 @@ Version: 0.3.0.9000
 Authors@R:
     person("Md Omar", "Faruqe", , "faruqe@ru.ac.bd", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-1226-7226"))
-Description: Evaluates externally generated antimicrobial resistance (AMR)
-    phenotype predictions against phenotypic reference results. Provides a
-    documented data contract, input validation, species-antimicrobial
-    stratified classification metrics, antimicrobial susceptibility testing
-    agreement metrics (categorical agreement, very major, major and minor
-    errors, essential agreement) and interval estimates suitable for small
-    denominators. Models are not trained inside the package.
+Description: Evaluates antimicrobial resistance (AMR) phenotype predictions
+    made by external models and rule-based tools against phenotypic
+    reference results, accounting for the population structure of bacterial
+    isolates. Provides a documented data contract and input validation;
+    classification and probability metrics and antimicrobial susceptibility
+    testing agreement metrics (categorical agreement, very major, major and
+    minor errors, essential agreement) per species and antimicrobial; checks
+    for overlap between training and test isolates; performance by genomic
+    distance to the training data; cluster bootstrap intervals and paired
+    model comparisons; calibration; prevalence-adjusted predictive values;
+    and reports aligned with the TRIPOD+AI checklist (Collins et al. (2024)
+    <doi:10.1136/bmj-2023-078378>). Organism and antimicrobial identifiers use
+    the classes of the 'AMR' package. Models are not trained inside the
+    package.
 License: MIT + file LICENSE
 URL: https://github.com/omarfaruqe/AMRvalid
 BugReports: https://github.com/omarfaruqe/AMRvalid/issues

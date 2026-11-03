@@ -21,3 +21,9 @@ Draws one panel per stratum (model, dataset, species and antimicrobial,
 plus the \code{by} column if used) with the binned observed proportions, their
 Wilson intervals and the loess-smoothed calibration curve.
 }
+\examples{
+sim <- amr_simulate(n_lineages = 20, isolates_per_lineage = 10,
+                    external_lineages = 20, return_distances = FALSE, seed = 1)
+x <- amr_import_predictions(sim$predictions)
+plot(amr_calibration(x[x$dataset_id == "external" & x$model_id == "marker/lineage", ]))
+}

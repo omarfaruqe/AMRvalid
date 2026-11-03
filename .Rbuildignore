@@ -7,3 +7,5 @@
 ^README\.Rmd$
 ^\.DS_Store$
 ^simulation$
+^cran-comments\.md$
+^CRAN-SUBMISSION$

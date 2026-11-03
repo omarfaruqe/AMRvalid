@@ -60,8 +60,9 @@ amr_evaluate <- function(x, threshold = NULL, intermediate = c("exclude", "susce
   if (validate) {
     v <- amr_validate(x, min_n = 0, min_resistant = 0)
     if (!v$ok) {
-      print(v)
-      stop("Validation failed; fix the errors above or set `validate = FALSE`.", call. = FALSE)
+      err <- v$issues[v$issues$level == "error", , drop = FALSE]
+      stop("Validation failed:\n", paste0("* ", err$check, ": ", err$message, collapse = "\n"),
+           "\nRun amr_validate() for details, or set `validate = FALSE`.", call. = FALSE)
     }
   }
   if (!is.null(split) && "split" %in% names(x)) {

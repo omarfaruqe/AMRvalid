@@ -156,7 +156,7 @@ The lineage interval is substantially wider because 450 isolates carry the
 information of only 30 independent lineages. The isolate-level interval
 overstates precision.
 
-## Take-aways
+## Key points
 
 1. Check the split with `amr_validate_splits()` before reporting performance.
 2. Prefer lineage- or cluster-held-out designs, or external datasets, when the

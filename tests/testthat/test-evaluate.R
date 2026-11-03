@@ -28,8 +28,9 @@ test_that("only the test split is evaluated by default", {
 test_that("invalid data stops evaluation", {
   d <- toy_scores()
   d$probability[1] <- 3
-  expect_error(suppressMessages(capture.output(amr_evaluate(amr_import_predictions(d), threshold = 0.5))),
-               "Validation failed")
+  expect_error(amr_evaluate(amr_import_predictions(d), threshold = 0.5),
+               "Validation failed:\n\\* probability_range")
+  expect_silent(try(amr_evaluate(amr_import_predictions(d), threshold = 0.5), silent = TRUE))
 })
 
 test_that("missing threshold gives a message and threshold-free metrics", {
