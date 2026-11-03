@@ -20,11 +20,12 @@ distances or interpret raw MICs into S/I/R. It uses the classes of the
 [AMR](https://amr-for-r.org) package (`ab`, `mo`, `sir`, `mic`) for antimicrobial,
 organism, category and MIC identifiers.
 
-> Status: 0.3.0. Pre-CRAN, so the API may still change before 1.0.0.
+> Status: 1.0.0. The API is stable; any future changes will go through deprecation first.
 
 ## Installation
 
 ```r
+# development version from GitHub
 # install.packages("remotes")
 remotes::install_github("omarfaruqe/AMRvalid")
 ```
@@ -83,7 +84,7 @@ amr_paired_compare(x, models = c("old", "new"), resample_by = "lineage", thresho
 | 0.1.0 | Data contract, validation, ML and AST metrics, small-denominator intervals (done) |
 | 0.2.0 | Split-integrity checks, distance-to-training evaluation, cluster bootstrap, paired comparison, simulation study (done) |
 | 0.3.0 | Calibration, prevalence adjustment, cluster weighting, provenance and TRIPOD+AI-aligned reporting, public example data and real-data vignette (done) |
-| 1.0.0 | API review, CRAN submission and software paper (next) |
+| 1.0.0 | API review (done), CRAN submission (in progress); software paper next |
 
 The full design is in [`docs/AMRvalid_Revised_Architecture_v3.docx`](docs/AMRvalid_Revised_Architecture_v3.docx).
 

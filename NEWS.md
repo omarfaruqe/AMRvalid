@@ -1,4 +1,6 @@
-# AMRvalid 0.3.0.9000
+# AMRvalid 1.0.0
+
+First CRAN release. API review before submission.
 
 * `amr_metrics()` and `amr_ast_agreement()` now evaluate only `split = "test"`
   rows by default, like the other evaluation functions. Previously they used
