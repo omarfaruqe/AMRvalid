@@ -20,7 +20,7 @@ distances or interpret raw MICs into S/I/R. It uses the classes of the
 [AMR](https://amr-for-r.org) package (`ab`, `mo`, `sir`, `mic`) for antimicrobial,
 organism, category and MIC identifiers.
 
-> Status: 0.2.0 released; 0.3.0 in development. Pre-CRAN, so the API may still change before 1.0.0.
+> Status: 0.3.0. Pre-CRAN, so the API may still change before 1.0.0.
 
 ## Installation
 
@@ -48,6 +48,17 @@ validate_amr_data(x)
 amr_species_eval(x, threshold = 0.5)
 ```
 
+## Real example data
+
+```r
+# Public NCBI Pathogen Detection data: K. pneumoniae meropenem and
+# ciprofloxacin phenotypes with rule-based predictions from AMRFinderPlus calls
+x <- amr_import_predictions(amr_example_data())
+amr_species_eval(x, weight_by = "genomic_cluster")
+```
+
+See `vignette("ncbi-kpneumoniae", package = "AMRvalid")` for a full worked example.
+
 ## Population-aware evaluation
 
 ```r
@@ -71,7 +82,8 @@ amr_paired_compare(x, models = c("old", "new"), group = "lineage", threshold = 0
 |---|---|
 | 0.1.0 | Data contract, validation, ML and AST metrics, small-denominator intervals (done) |
 | 0.2.0 | Split-integrity checks, distance-to-training evaluation, cluster bootstrap, paired comparison, simulation study (done) |
-| 0.3.0 | Calibration, prevalence adjustment, cluster weighting, provenance and TRIPOD+AI-aligned reporting (done); AMRgen adapter and real-data vignette (next) |
+| 0.3.0 | Calibration, prevalence adjustment, cluster weighting, provenance and TRIPOD+AI-aligned reporting, public example data and real-data vignette (done) |
+| 1.0.0 | API review, CRAN submission and software paper (next) |
 
 The full design is in [`docs/AMRvalid_Revised_Architecture_v3.docx`](docs/AMRvalid_Revised_Architecture_v3.docx).
 

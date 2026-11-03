@@ -1,4 +1,6 @@
-# AMRvalid 0.2.0.9000
+# AMRvalid 0.3.0
+
+Calibration, transferability and reporting.
 
 * `amr_calibration()`: calibration-in-the-large (O/E ratio and intercept),
   calibration slope, expected and maximum calibration error, binned and
