@@ -19,6 +19,10 @@
 * New `plot()` methods for `amr_evaluate()`, `amr_distance_eval()`,
   `amr_bootstrap()` and `amr_paired_compare()` results, using base graphics
   and a colourblind-safe palette assigned to models in a fixed order.
+* `amr_distance_eval()` gains `weight_by`, `vme_denominator` and
+  `target_prevalence`, passed to the metrics in each band. With `weight_by`
+  the distance trend also weights each cluster equally, so its interval
+  reflects the number of clusters rather than isolates.
 
 # AMRvalid 0.3.0
 

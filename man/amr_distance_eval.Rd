@@ -12,7 +12,10 @@ amr_distance_eval(
   threshold = NULL,
   intermediate = c("exclude", "susceptible", "resistant"),
   ci = c("wilson", "clopper-pearson"),
-  conf = 0.95
+  conf = 0.95,
+  vme_denominator = c("class", "all"),
+  target_prevalence = NULL,
+  weight_by = NULL
 )
 }
 \arguments{
@@ -48,6 +51,10 @@ always excluded.}
 \item{ci}{Interval method for proportions, passed to \code{\link[=amr_prop_ci]{amr_prop_ci()}}.}
 
 \item{conf}{Confidence level.}
+
+\item{vme_denominator, target_prevalence, weight_by}{Passed to
+\code{\link[=amr_evaluate]{amr_evaluate()}} for the metrics in each band; \code{weight_by} also weights
+the trend model.}
 }
 \value{
 An object of class \code{amr_distance_eval}: a list with \code{nearest}
@@ -71,6 +78,11 @@ as the odds ratio per standard deviation of distance;
 (the per-isolate Brier score) on distance, reported as the change per
 standard deviation.
 }
+
+With \code{weight_by}, band metrics are cluster-weighted (see \code{\link[=amr_metrics]{amr_metrics()}})
+and the trend model weights each cluster equally, so its standard error
+reflects the number of clusters rather than isolates. Calibration rows
+are not weighted.
 
 For score predictions, each band also reports the calibration intercept
 and slope (see \code{\link[=amr_calibration]{amr_calibration()}}), showing whether a model becomes

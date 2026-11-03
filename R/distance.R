@@ -77,6 +77,9 @@ amr_nearest_train_distance <- function(test_ids, train_ids, distances) {
 #'
 #' @inheritParams amr_validate_splits
 #' @inheritParams amr_evaluate
+#' @param vme_denominator,target_prevalence,weight_by Passed to
+#'   [amr_evaluate()] for the metrics in each band; `weight_by` also weights
+#'   the trend model.
 #' @param distances Pairwise distances: a matrix or long table, see
 #'   [amr_nearest_train_distance()]. Alternatively a data frame with
 #'   `isolate_id` and `nearest_distance` (and optionally `model_id`) if
@@ -94,6 +97,11 @@ amr_nearest_train_distance <- function(test_ids, train_ids, distances) {
 #' * with scores and no threshold: a linear regression of the squared error
 #'   (the per-isolate Brier score) on distance, reported as the change per
 #'   standard deviation.
+#'
+#' With `weight_by`, band metrics are cluster-weighted (see [amr_metrics()])
+#' and the trend model weights each cluster equally, so its standard error
+#' reflects the number of clusters rather than isolates. Calibration rows
+#' are not weighted.
 #'
 #' For score predictions, each band also reports the calibration intercept
 #' and slope (see [amr_calibration()]), showing whether a model becomes
@@ -124,10 +132,16 @@ amr_nearest_train_distance <- function(test_ids, train_ids, distances) {
 amr_distance_eval <- function(x, distances, train_manifest = NULL, bands = 3,
                               threshold = NULL,
                               intermediate = c("exclude", "susceptible", "resistant"),
-                              ci = c("wilson", "clopper-pearson"), conf = 0.95) {
+                              ci = c("wilson", "clopper-pearson"), conf = 0.95,
+                              vme_denominator = c("class", "all"), target_prevalence = NULL,
+                              weight_by = NULL) {
   check_amr_data(x)
   intermediate <- match.arg(intermediate)
   ci <- match.arg(ci)
+  vme_denominator <- match.arg(vme_denominator)
+  if (!is.null(weight_by) && !weight_by %in% names(x)) {
+    stop("Weighting column '", weight_by, "' not found.", call. = FALSE)
+  }
   d <- as.data.frame(x)
   ptype <- d$prediction_type[1]
   test_rows <- if ("split" %in% names(d)) d$split %in% "test" else rep(TRUE, nrow(d))
@@ -179,7 +193,9 @@ amr_distance_eval <- function(x, distances, train_manifest = NULL, bands = 3,
     sub <- te[te$.band == b, , drop = FALSE]
     if (nrow(sub) == 0) next
     e <- suppressMessages(amr_evaluate(sub, threshold = threshold, intermediate = intermediate,
-                                           ci = ci, conf = conf, split = NULL, validate = FALSE))
+                                       ci = ci, conf = conf, split = NULL, validate = FALSE,
+                                       vme_denominator = vme_denominator,
+                                       target_prevalence = target_prevalence, weight_by = weight_by))
     e <- as.data.frame(e)
     if (identical(ptype, "score")) {
       cal <- calibration_band_rows(sub, intermediate, conf)
@@ -194,10 +210,12 @@ amr_distance_eval <- function(x, distances, train_manifest = NULL, bands = 3,
   by_band <- by_band[, c(front, setdiff(names(by_band), front))]
   rownames(by_band) <- NULL
 
-  trend <- distance_trend(te, threshold, intermediate, conf)
+  trend <- distance_trend(te, threshold, intermediate, conf, weight_by)
 
   structure(list(nearest = nearest, by_band = by_band, trend = trend,
                  settings = list(bands = breaks, threshold = threshold, intermediate = intermediate,
+                                 weight_by = weight_by, vme_denominator = vme_denominator,
+                                 target_prevalence = target_prevalence,
                                  ci = ci, conf = conf, prediction_type = ptype)),
             class = "amr_distance_eval")
 }
@@ -238,7 +256,7 @@ band_breaks <- function(dist, bands) {
   br
 }
 
-distance_trend <- function(te, threshold, intermediate, conf) {
+distance_trend <- function(te, threshold, intermediate, conf, weight_by = NULL) {
   ptype <- te$prediction_type[1]
   cols <- stratum_columns(te)
   key <- interaction(as.data.frame(te)[, cols], drop = TRUE, lex.order = TRUE, sep = "\r")
@@ -263,7 +281,7 @@ distance_trend <- function(te, threshold, intermediate, conf) {
       y <- as.integer(truth[ok] == pred[ok]); dz <- dist[ok] / sdv
       res$model <- "logistic: correct ~ distance (odds ratio per SD)"
       res$n <- sum(ok)
-      fit <- trend_fit(y, dz, binomial = TRUE)
+      fit <- trend_fit(y, dz, binomial = TRUE, w = cluster_weights(sub, weight_by, ok)[ok])
       if (!is.null(fit)) {
         res$effect <- exp(fit[1]); res$lower <- exp(fit[1] - z * fit[2]); res$upper <- exp(fit[1] + z * fit[2])
       } else {
@@ -274,7 +292,7 @@ distance_trend <- function(te, threshold, intermediate, conf) {
       y <- (sub$probability[ok] - as.integer(truth[ok] == "R"))^2; dz <- dist[ok] / sdv
       res$model <- "linear: squared error ~ distance (change per SD)"
       res$n <- sum(ok)
-      fit <- trend_fit(y, dz, binomial = FALSE)
+      fit <- trend_fit(y, dz, binomial = FALSE, w = cluster_weights(sub, weight_by, ok)[ok])
       if (!is.null(fit)) {
         res$effect <- fit[1]; res$lower <- fit[1] - z * fit[2]; res$upper <- fit[1] + z * fit[2]
       } else {
@@ -289,13 +307,17 @@ distance_trend <- function(te, threshold, intermediate, conf) {
   out
 }
 
-# Returns c(slope, se) or NULL when the model cannot be estimated.
-trend_fit <- function(y, dz, binomial) {
+# Returns c(slope, se) or NULL when the model cannot be estimated. Weights
+# (1 per row, or 1 per cluster shared by its isolates) sum to the number of
+# independent units, so standard errors reflect that number.
+trend_fit <- function(y, dz, binomial, w = rep(1, length(y))) {
   if (length(y) < 5 || !is.finite(stats::sd(dz)) || stats::sd(dz) == 0 || length(unique(y)) < 2) {
     return(NULL)
   }
+  dat <- data.frame(y = y, dz = dz, w = w)
   fit <- tryCatch(
-    suppressWarnings(if (binomial) stats::glm(y ~ dz, family = stats::binomial()) else stats::lm(y ~ dz)),
+    suppressWarnings(if (binomial) stats::glm(y ~ dz, family = stats::binomial(), weights = w, data = dat)
+                     else stats::lm(y ~ dz, weights = w, data = dat)),
     error = function(e) NULL
   )
   if (is.null(fit)) return(NULL)
@@ -310,7 +332,8 @@ print.amr_distance_eval <- function(x, digits = 3, ...) {
   nr <- x$nearest
   cat("<amr_distance_eval> ", sum(!is.na(nr$distance)), " test isolates | ",
       nlevels(nr$band), " distance bands | type: ", s$prediction_type,
-      " | threshold: ", if (is.null(s$threshold)) "none" else s$threshold, "\n", sep = "")
+      " | threshold: ", if (is.null(s$threshold)) "none" else s$threshold,
+      if (!is.null(s$weight_by)) paste0(" | weighted by ", s$weight_by), "\n", sep = "")
   cat("Isolates per band:\n")
   print(table(model = nr$model_id, band = nr$band))
   key_metrics <- c("sensitivity", "specificity", "very_major_error", "major_error",

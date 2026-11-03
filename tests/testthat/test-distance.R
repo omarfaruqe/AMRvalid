@@ -88,3 +88,32 @@ test_that("isolates without distances are excluded with a warning", {
                  "1 test isolate")
   expect_equal(sum(!is.na(r$nearest$band)), 39)
 })
+
+test_that("weight_by is passed to band metrics and weights the trend", {
+  toy <- distance_toy()
+  d <- toy$preds
+  # clusters of 4 consecutive isolates
+  d$genomic_cluster <- paste0("C", (seq_len(nrow(d)) - 1) %/% 4)
+  x <- amr_import_predictions(d)
+  r0 <- amr_distance_eval(x, toy$matrix, threshold = 0.5)
+  r1 <- amr_distance_eval(x, toy$matrix, threshold = 0.5, weight_by = "genomic_cluster")
+  expect_true("n_weight_groups" %in% r1$by_band$metric)
+  expect_false("n_weight_groups" %in% r0$by_band$metric)
+  # weighting by clusters of 4 makes the trend interval wider (fewer units)
+  w0 <- log(r0$trend$upper) - log(r0$trend$lower)
+  w1 <- log(r1$trend$upper) - log(r1$trend$lower)
+  expect_gt(w1, 1.5 * w0)
+  expect_output(print(r1), "weighted by genomic_cluster")
+  r2 <- amr_distance_eval(x, toy$matrix, threshold = 0.5, target_prevalence = 0.1)
+  expect_true("ppv_at_target_prevalence" %in% r2$by_band$metric)
+  expect_error(amr_distance_eval(x, toy$matrix, weight_by = "nope"), "not found")
+})
+
+test_that("unweighted distance results are unchanged by the weighting code", {
+  toy <- distance_toy()
+  r <- amr_distance_eval(amr_import_predictions(toy$preds), toy$matrix, threshold = 0.5)
+  y <- as.integer(toy$preds$truth == ifelse(toy$preds$probability >= 0.5, "R", "S"))[21:60]
+  dz <- (1:40) / stats::sd(1:40)
+  ref <- stats::glm(y ~ dz, family = stats::binomial())
+  expect_equal(r$trend$effect, unname(exp(stats::coef(ref)[2])))
+})
