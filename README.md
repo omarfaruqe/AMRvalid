@@ -45,7 +45,7 @@ preds <- data.frame(
 
 x <- amr_import_predictions(preds)
 amr_validate(x)
-amr_species_eval(x, threshold = 0.5)
+amr_evaluate(x, threshold = 0.5)
 ```
 
 ## Real example data
@@ -54,7 +54,7 @@ amr_species_eval(x, threshold = 0.5)
 # Public NCBI Pathogen Detection data: K. pneumoniae meropenem and
 # ciprofloxacin phenotypes with rule-based predictions from AMRFinderPlus calls
 x <- amr_import_predictions(amr_example_data())
-amr_species_eval(x, weight_by = "genomic_cluster")
+amr_evaluate(x, weight_by = "genomic_cluster")
 ```
 
 See `vignette("ncbi-kpneumoniae", package = "AMRvalid")` for a full worked example.

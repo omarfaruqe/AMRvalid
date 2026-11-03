@@ -70,7 +70,7 @@ intervals with many invalid replicates with caution.
 When every replicate gives the same value (typically a sensitivity of 1
 or a very major error rate of 0), the percentile interval has zero width
 and cannot express uncertainty. Such rows are marked \code{zero_width}; use
-the Wilson or Clopper-Pearson intervals from \code{\link[=amr_species_eval]{amr_species_eval()}} for
+the Wilson or Clopper-Pearson intervals from \code{\link[=amr_evaluate]{amr_evaluate()}} for
 them instead.
 }
 \examples{

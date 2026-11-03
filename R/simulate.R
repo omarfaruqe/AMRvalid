@@ -52,7 +52,7 @@
 #' sim <- amr_simulate(n_lineages = 20, isolates_per_lineage = 10,
 #'                     external_lineages = 10, seed = 1)
 #' x <- amr_import_predictions(sim$predictions)
-#' e <- amr_species_eval(x, threshold = 0.5, validate = FALSE)
+#' e <- amr_evaluate(x, threshold = 0.5, validate = FALSE)
 #' e[e$metric == "accuracy", c("model_id", "dataset_id", "estimate")]
 amr_simulate <- function(n_lineages = 40, isolates_per_lineage = 25, external_lineages = 40,
                          marker_effect = 3, lineage_sd = 1.5, intercept = -1.5, within_sd = 5,

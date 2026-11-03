@@ -7,7 +7,7 @@ two_drugs <- function() {
 }
 
 test_that("evaluation is stratified by species and drug", {
-  e <- amr_species_eval(amr_import_predictions(two_drugs()), threshold = 0.5)
+  e <- amr_evaluate(amr_import_predictions(two_drugs()), threshold = 0.5)
   expect_s3_class(e, "amr_eval")
   expect_setequal(unique(e$drug_name), c("Meropenem", "Ciprofloxacin"))
   sens <- e$estimate[e$metric == "sensitivity" & e$drug == "MEM"]
@@ -19,21 +19,21 @@ test_that("evaluation is stratified by species and drug", {
 test_that("only the test split is evaluated by default", {
   d <- toy_scores()
   d$split <- c(rep("test", 8), "validation", "validation")
-  e <- amr_species_eval(amr_import_predictions(d), threshold = 0.5)
+  e <- amr_evaluate(amr_import_predictions(d), threshold = 0.5)
   expect_equal(e$estimate[e$metric == "n"], 8)
-  e_all <- amr_species_eval(amr_import_predictions(d), threshold = 0.5, split = NULL)
+  e_all <- amr_evaluate(amr_import_predictions(d), threshold = 0.5, split = NULL)
   expect_equal(e_all$estimate[e_all$metric == "n"], 10)
 })
 
 test_that("invalid data stops evaluation", {
   d <- toy_scores()
   d$probability[1] <- 3
-  expect_error(suppressMessages(capture.output(amr_species_eval(amr_import_predictions(d), threshold = 0.5))),
+  expect_error(suppressMessages(capture.output(amr_evaluate(amr_import_predictions(d), threshold = 0.5))),
                "Validation failed")
 })
 
 test_that("missing threshold gives a message and threshold-free metrics", {
-  expect_message(e <- amr_species_eval(amr_import_predictions(toy_scores())), "threshold")
+  expect_message(e <- amr_evaluate(amr_import_predictions(toy_scores())), "threshold")
   expect_false("sensitivity" %in% e$metric)
   expect_false("ast" %in% e$family)
 })
@@ -41,15 +41,21 @@ test_that("missing threshold gives a message and threshold-free metrics", {
 test_that("MIC predictions are evaluated with AST metrics only", {
   d <- data.frame(isolate_id = c("a", "b", "c"), species = "E. coli", drug = "ciprofloxacin",
                   truth_mic = c("1", "2", "0.5"), predicted_mic = c("1", "8", "0.5"))
-  e <- amr_species_eval(amr_import_predictions(d))
+  e <- amr_evaluate(amr_import_predictions(d))
   expect_equal(unique(e$family), "ast")
   expect_equal(e$estimate[e$metric == "essential_agreement"], 2 / 3)
 })
 
 test_that("subsets and reshaped results print as plain data frames", {
-  e <- amr_species_eval(amr_import_predictions(toy_scores()), threshold = 0.5)
+  e <- amr_evaluate(amr_import_predictions(toy_scores()), threshold = 0.5)
   sub <- e[e$metric == "accuracy", c("model_id", "estimate")]
   expect_output(print(sub), "estimate")
   x <- amr_import_predictions(toy_scores())
   expect_output(print(x[, c("isolate_id", "truth_sir")]), "isolate_id")
+})
+
+test_that("the old name amr_species_eval() still works with a deprecation warning", {
+  x <- amr_import_predictions(toy_scores())
+  expect_warning(e <- amr_species_eval(x, threshold = 0.5), "amr_evaluate")
+  expect_equal(as.data.frame(e), as.data.frame(amr_evaluate(x, threshold = 0.5)))
 })

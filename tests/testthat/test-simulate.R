@@ -33,7 +33,7 @@ test_that("random splits overstate the lineage-memorising predictor", {
   sim <- amr_simulate(n_lineages = 40, isolates_per_lineage = 20, external_lineages = 60,
                       return_distances = FALSE, seed = 11)
   x <- amr_import_predictions(sim$predictions)
-  e <- suppressMessages(amr_species_eval(x, validate = FALSE))
+  e <- suppressMessages(amr_evaluate(x, validate = FALSE))
   auc <- function(model, dataset) e$estimate[e$metric == "roc_auc" & e$model_id == model &
                                                e$dataset_id == dataset]
   optimism_knn <- auc("knn/random", "internal") - auc("knn/random", "external")

@@ -4,6 +4,7 @@
 #' the replacements listed below.
 #'
 #' * `validate_amr_data()`: use [amr_validate()].
+#' * `amr_species_eval()`: use [amr_evaluate()].
 #'
 #' @param ... Arguments passed to the replacement function.
 #' @return The result of the replacement function.
@@ -16,4 +17,11 @@ NULL
 validate_amr_data <- function(...) {
   .Deprecated("amr_validate", package = "AMRvalid")
   amr_validate(...)
+}
+
+#' @rdname AMRvalid-deprecated
+#' @export
+amr_species_eval <- function(...) {
+  .Deprecated("amr_evaluate", package = "AMRvalid")
+  amr_evaluate(...)
 }

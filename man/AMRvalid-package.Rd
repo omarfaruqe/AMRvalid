@@ -15,7 +15,7 @@ The core workflow is:
 \enumerate{
 \item \code{\link[=amr_import_predictions]{amr_import_predictions()}} maps a table onto the AMRvalid data contract.
 \item \code{\link[=amr_validate]{amr_validate()}} reports blocking errors and warnings.
-\item \code{\link[=amr_metrics]{amr_metrics()}}, \code{\link[=amr_ast_agreement]{amr_ast_agreement()}} and \code{\link[=amr_species_eval]{amr_species_eval()}}
+\item \code{\link[=amr_metrics]{amr_metrics()}}, \code{\link[=amr_ast_agreement]{amr_ast_agreement()}} and \code{\link[=amr_evaluate]{amr_evaluate()}}
 compute performance per species-antimicrobial stratum.
 }
 }

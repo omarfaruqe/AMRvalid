@@ -2,7 +2,7 @@
 #'
 #' Computes machine-learning performance metrics for the rows of an
 #' `amr_data` object, treating resistance (R) as the positive class. Use
-#' [amr_species_eval()] to compute them per species-antimicrobial stratum;
+#' [amr_evaluate()] to compute them per species-antimicrobial stratum;
 #' pooling strata is rarely meaningful.
 #'
 #' @param x An `amr_data` object.

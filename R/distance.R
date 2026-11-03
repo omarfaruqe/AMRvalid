@@ -76,7 +76,7 @@ amr_nearest_train_distance <- function(test_ids, train_ids, distances) {
 #' was trained on.
 #'
 #' @inheritParams amr_validate_splits
-#' @inheritParams amr_species_eval
+#' @inheritParams amr_evaluate
 #' @param distances Pairwise distances: a matrix or long table, see
 #'   [amr_nearest_train_distance()]. Alternatively a data frame with
 #'   `isolate_id` and `nearest_distance` (and optionally `model_id`) if
@@ -105,7 +105,7 @@ amr_nearest_train_distance <- function(test_ids, train_ids, distances) {
 #'
 #' @return An object of class `amr_distance_eval`: a list with `nearest`
 #'   (per-isolate distances and bands), `by_band` (metrics per band, in the
-#'   format of [amr_species_eval()]) and `trend` (one row per stratum).
+#'   format of [amr_evaluate()]) and `trend` (one row per stratum).
 #' @export
 #' @examples
 #' set.seed(1)
@@ -178,7 +178,7 @@ amr_distance_eval <- function(x, distances, train_manifest = NULL, bands = 3,
   for (b in levels(nearest$band)) {
     sub <- te[te$.band == b, , drop = FALSE]
     if (nrow(sub) == 0) next
-    e <- suppressMessages(amr_species_eval(sub, threshold = threshold, intermediate = intermediate,
+    e <- suppressMessages(amr_evaluate(sub, threshold = threshold, intermediate = intermediate,
                                            ci = ci, conf = conf, split = NULL, validate = FALSE))
     e <- as.data.frame(e)
     if (identical(ptype, "score")) {
@@ -341,7 +341,7 @@ print.amr_distance_eval <- function(x, digits = 3, ...) {
 }
 
 # Calibration intercept and slope per stratum, in the long metric format of
-# amr_species_eval(), for one distance band.
+# amr_evaluate(), for one distance band.
 calibration_band_rows <- function(sub, intermediate, conf) {
   cal <- amr_calibration(sub, intermediate = intermediate, conf = conf, split = NULL, min_events = 0)
   s <- cal$summary

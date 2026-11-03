@@ -5,7 +5,7 @@
 #' as if isolates were independent understates uncertainty when related
 #' isolates share outcomes; resampling clusters respects that dependence.
 #'
-#' @inheritParams amr_species_eval
+#' @inheritParams amr_evaluate
 #' @param group Column defining the resampling unit, e.g. `"isolate_id"`
 #'   (default), `"lineage"` or `"genomic_cluster"`. Rows with a missing
 #'   group label are treated as their own single-isolate groups.
@@ -27,7 +27,7 @@
 #' When every replicate gives the same value (typically a sensitivity of 1
 #' or a very major error rate of 0), the percentile interval has zero width
 #' and cannot express uncertainty. Such rows are marked `zero_width`; use
-#' the Wilson or Clopper-Pearson intervals from [amr_species_eval()] for
+#' the Wilson or Clopper-Pearson intervals from [amr_evaluate()] for
 #' them instead.
 #'
 #' @return An object of class `amr_bootstrap`: a data frame with the
@@ -123,7 +123,7 @@ print.amr_bootstrap <- function(x, digits = 3, ...) {
   }
   if (any(d$zero_width)) {
     cat("! ", sum(d$zero_width), " interval(s) have zero width (every replicate gave the same value);",
-        " use the Wilson intervals from amr_species_eval() for these.\n", sep = "")
+        " use the Wilson intervals from amr_evaluate() for these.\n", sep = "")
   }
   invisible(x)
 }

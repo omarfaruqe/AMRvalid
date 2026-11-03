@@ -35,7 +35,7 @@ informs.
 sim <- amr_simulate(n_lineages = 20, isolates_per_lineage = 10,
                     external_lineages = 0, return_distances = FALSE, seed = 1)
 x <- amr_import_predictions(sim$predictions)
-e <- amr_species_eval(x, threshold = 0.5)
+e <- amr_evaluate(x, threshold = 0.5)
 amr_provenance(x, e, model_info = list(threshold_selection = "fixed at 0.5"))
 }
 \references{

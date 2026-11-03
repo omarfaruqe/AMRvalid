@@ -7,7 +7,7 @@
 #' probability itself is used, for example to set a threshold or to report
 #' a risk.
 #'
-#' @inheritParams amr_species_eval
+#' @inheritParams amr_evaluate
 #' @param bins Number of bins for the binned reliability curve and the
 #'   expected calibration error.
 #' @param binning `"equal_width"` (default; bins of width 1 / `bins` on the

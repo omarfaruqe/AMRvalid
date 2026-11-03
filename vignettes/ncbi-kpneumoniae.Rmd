@@ -50,7 +50,7 @@ and the AST agreement metrics count it as a minor error.
 ## Step 2: performance per predictor
 
 ```{r eval}
-e <- amr_species_eval(x)
+e <- amr_evaluate(x)
 key <- c("sensitivity", "specificity", "categorical_agreement",
          "very_major_error", "major_error", "minor_error")
 tab <- as.data.frame(e)[e$metric %in% key, c("drug_name", "model_id", "metric", "estimate", "lower", "upper")]
@@ -71,8 +71,8 @@ rules perform across distinct strains rather than across isolates.
 
 ```{r weighting}
 k <- c("sensitivity", "specificity", "very_major_error", "major_error")
-iso <- as.data.frame(amr_species_eval(x))
-clu <- as.data.frame(amr_species_eval(x, weight_by = "genomic_cluster"))
+iso <- as.data.frame(amr_evaluate(x))
+clu <- as.data.frame(amr_evaluate(x, weight_by = "genomic_cluster"))
 cmp <- merge(iso[iso$metric %in% k, c("model_id", "metric", "estimate")],
              clu[clu$metric %in% k, c("model_id", "metric", "estimate")],
              by = c("model_id", "metric"), suffixes = c("_isolates", "_clusters"))
@@ -123,7 +123,7 @@ preferable depends on which error matters more in practice.
 ```{r time}
 x$period <- cut(d$collection_year, c(-Inf, 2016, 2020, Inf), labels = c("up to 2016", "2017-2020", "2021 on"))
 per <- lapply(split(seq_len(nrow(x)), x$period), function(i) {
-  r <- as.data.frame(amr_species_eval(x[i, ], validate = FALSE))
+  r <- as.data.frame(amr_evaluate(x[i, ], validate = FALSE))
   r <- r[r$metric %in% c("n", "very_major_error"), c("model_id", "metric", "estimate")]
   r
 })

@@ -52,7 +52,7 @@ always excluded.}
 \value{
 An object of class \code{amr_distance_eval}: a list with \code{nearest}
 (per-isolate distances and bands), \code{by_band} (metrics per band, in the
-format of \code{\link[=amr_species_eval]{amr_species_eval()}}) and \code{trend} (one row per stratum).
+format of \code{\link[=amr_evaluate]{amr_evaluate()}}) and \code{trend} (one row per stratum).
 }
 \description{
 Assigns each test isolate the distance to its nearest training isolate,

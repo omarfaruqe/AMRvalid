@@ -58,7 +58,7 @@ group-aware intervals.
 \description{
 Computes machine-learning performance metrics for the rows of an
 \code{amr_data} object, treating resistance (R) as the positive class. Use
-\code{\link[=amr_species_eval]{amr_species_eval()}} to compute them per species-antimicrobial stratum;
+\code{\link[=amr_evaluate]{amr_evaluate()}} to compute them per species-antimicrobial stratum;
 pooling strata is rarely meaningful.
 }
 \details{

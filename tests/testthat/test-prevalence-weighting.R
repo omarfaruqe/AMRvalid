@@ -70,9 +70,9 @@ test_that("weighted AUC equals the unweighted AUC when every group has one isola
   expect_true(is.na(amr_metrics(x, weight_by = "lineage")$lower[amr_metrics(x, weight_by = "lineage")$metric == "roc_auc"]))
 })
 
-test_that("species_eval passes weighting and prevalence through", {
+test_that("amr_evaluate passes weighting and prevalence through", {
   x <- amr_import_predictions(outbreak_toy())
-  e <- amr_species_eval(x, weight_by = "lineage", target_prevalence = 0.2)
+  e <- amr_evaluate(x, weight_by = "lineage", target_prevalence = 0.2)
   expect_equal(e$estimate[e$metric == "sensitivity"], 1 / 5)
   expect_true("ppv_at_target_prevalence" %in% e$metric)
   expect_output(print(e), "weighted by lineage")

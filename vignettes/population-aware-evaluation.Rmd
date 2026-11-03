@@ -75,7 +75,7 @@ The external lineages approximate what happens when the predictor meets new
 strains.
 
 ```{r optimism}
-e <- suppressMessages(amr_species_eval(x, validate = FALSE))
+e <- suppressMessages(amr_evaluate(x, validate = FALSE))
 auc <- as.data.frame(e)[e$metric == "roc_auc", c("model_id", "dataset_id", "estimate")]
 auc_wide <- reshape(auc, idvar = "model_id", timevar = "dataset_id", direction = "wide")
 names(auc_wide) <- c("model", "external", "internal")

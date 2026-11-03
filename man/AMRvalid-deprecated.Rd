@@ -3,9 +3,12 @@
 \name{AMRvalid-deprecated}
 \alias{AMRvalid-deprecated}
 \alias{validate_amr_data}
+\alias{amr_species_eval}
 \title{Deprecated functions}
 \usage{
 validate_amr_data(...)
+
+amr_species_eval(...)
 }
 \arguments{
 \item{...}{Arguments passed to the replacement function.}
@@ -20,6 +23,7 @@ the replacements listed below.
 \details{
 \itemize{
 \item \code{validate_amr_data()}: use \code{\link[=amr_validate]{amr_validate()}}.
+\item \code{amr_species_eval()}: use \code{\link[=amr_evaluate]{amr_evaluate()}}.
 }
 }
 \keyword{internal}

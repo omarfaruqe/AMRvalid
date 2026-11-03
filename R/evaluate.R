@@ -1,4 +1,4 @@
-#' Evaluate predictions per species-antimicrobial stratum
+#' Evaluate predictions per stratum
 #'
 #' Splits an `amr_data` object by model, dataset, species and antimicrobial
 #' and computes [amr_metrics()] and, where possible, [amr_ast_agreement()]
@@ -27,8 +27,8 @@
 #'   truth = c("R", "S", "S", "R", "R", "R", "S", "S"),
 #'   probability = c(0.9, 0.2, 0.4, 0.7, 0.8, 0.3, 0.1, 0.6)
 #' )
-#' amr_species_eval(amr_import_predictions(preds), threshold = 0.5)
-amr_species_eval <- function(x, threshold = NULL, intermediate = c("exclude", "susceptible", "resistant"),
+#' amr_evaluate(amr_import_predictions(preds), threshold = 0.5)
+amr_evaluate <- function(x, threshold = NULL, intermediate = c("exclude", "susceptible", "resistant"),
                              vme_denominator = c("class", "all"),
                              ci = c("wilson", "clopper-pearson"), conf = 0.95,
                              split = "test", validate = TRUE, target_prevalence = NULL,

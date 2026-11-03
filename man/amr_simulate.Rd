@@ -84,6 +84,6 @@ Each predictor is applied under two designs, giving model identifiers
 sim <- amr_simulate(n_lineages = 20, isolates_per_lineage = 10,
                     external_lineages = 10, seed = 1)
 x <- amr_import_predictions(sim$predictions)
-e <- amr_species_eval(x, threshold = 0.5, validate = FALSE)
+e <- amr_evaluate(x, threshold = 0.5, validate = FALSE)
 e[e$metric == "accuracy", c("model_id", "dataset_id", "estimate")]
 }

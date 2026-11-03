@@ -7,6 +7,9 @@
 * `validate_amr_data()` is renamed `amr_validate()`, so every exported
   function starts with `amr_`. The old name still works, with a deprecation
   warning.
+* `amr_species_eval()` is renamed `amr_evaluate()`: it stratifies by model,
+  dataset, species and antimicrobial, and is the main evaluation function.
+  The old name still works, with a deprecation warning.
 
 # AMRvalid 0.3.0
 

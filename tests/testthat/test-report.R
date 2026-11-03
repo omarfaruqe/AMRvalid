@@ -6,7 +6,7 @@ report_inputs <- function() {
 
 test_that("provenance labels items as checked, supplied or not assessable", {
   r <- report_inputs()
-  e <- amr_species_eval(r$x, threshold = 0.5)
+  e <- amr_evaluate(r$x, threshold = 0.5)
   p <- amr_provenance(r$x, e, model_info = list(threshold_selection = "fixed at 0.5"))
   expect_s3_class(p, "amr_provenance")
   expect_true(all(p$status %in% c("checked", "supplied", "not assessable")))
@@ -35,7 +35,7 @@ test_that("provenance records split checks, bootstrap and calibration", {
 test_that("report contains every supplied section and the TRIPOD+AI table", {
   r <- report_inputs()
   x <- r$x[r$x$dataset_id == "internal", ]
-  e <- amr_species_eval(x, threshold = 0.5)
+  e <- amr_evaluate(x, threshold = 0.5)
   sc <- amr_validate_splits(x, train_manifest = r$sim$train_manifest, group = "lineage")
   cal <- amr_calibration(x)
   d <- amr_distance_eval(x, r$sim$distances, train_manifest = r$sim$train_manifest)
@@ -52,7 +52,7 @@ test_that("report contains every supplied section and the TRIPOD+AI table", {
 
 test_that("report writes Markdown and HTML files", {
   r <- report_inputs()
-  e <- amr_species_eval(r$x, threshold = 0.5)
+  e <- amr_evaluate(r$x, threshold = 0.5)
   md <- amr_report(r$x, e, file = tempfile(fileext = ".md"))
   expect_true(file.exists(md))
   expect_match(readLines(md, n = 1), "^# AMRvalid evaluation report")
