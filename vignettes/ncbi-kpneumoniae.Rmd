@@ -92,8 +92,8 @@ across distinct strains.
 
 ```{r bootstrap}
 mero <- x[x$drug == "MEM", ]
-b_iso <- amr_bootstrap(mero, group = "isolate_id", B = 300, seed = 1)
-b_clu <- amr_bootstrap(mero, group = "genomic_cluster", B = 300, seed = 1)
+b_iso <- amr_bootstrap(mero, resample_by = "isolate_id", B = 300, seed = 1)
+b_clu <- amr_bootstrap(mero, resample_by = "genomic_cluster", B = 300, seed = 1)
 vme <- function(b, unit) {
   b <- as.data.frame(b)
   r <- b[b$metric == "very_major_error", ]
@@ -111,7 +111,7 @@ Resampling clusters rather than isolates widens the intervals, because the
 
 ```{r paired}
 amr_paired_compare(mero, models = c("carbapenemase genes", "carbapenemase or porin + ESBL/AmpC"),
-                   group = "genomic_cluster", B = 300, seed = 1)
+                   resample_by = "genomic_cluster", B = 300, seed = 1)
 ```
 
 The broader rule lowers the very major error rate and raises the major error

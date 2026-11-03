@@ -159,7 +159,7 @@ amr_provenance <- function(x, ..., model_info = list(), dataset_info = list()) {
   if (!is.null(res$amr_bootstrap)) {
     s <- attr(res$amr_bootstrap, "settings")
     add("Analysis", "Group-aware uncertainty",
-        sprintf("cluster bootstrap by %s, B = %d, seed = %s", s$group, s$B,
+        sprintf("cluster bootstrap by %s, B = %d, seed = %s", s$resample_by, s$B,
                 if (is.null(s$seed)) "not set" else s$seed), "checked", "12d")
   } else {
     add("Analysis", "Group-aware uncertainty", "Not assessed; intervals assume independent isolates",
@@ -289,7 +289,7 @@ amr_report <- function(x, ..., model_info = list(), dataset_info = list(), file 
   if (!is.null(b)) {
     bd <- as.data.frame(b)
     bd$value <- fmt_ci(bd$estimate, bd$lower, bd$upper)
-    h(paste0("## Group-aware intervals (resampling unit: ", attr(b, "settings")$group, ")"), "",
+    h(paste0("## Group-aware intervals (resampling unit: ", attr(b, "settings")$resample_by, ")"), "",
       md_table(bd[, c("model_id", "dataset_id", "drug_name", "metric", "value", "n_groups")]), "")
   }
   pc <- res$amr_paired_compare

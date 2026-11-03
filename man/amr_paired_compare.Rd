@@ -7,14 +7,15 @@
 amr_paired_compare(
   x,
   models = NULL,
-  group = "isolate_id",
+  resample_by = "isolate_id",
   B = 2000,
   threshold = NULL,
   intermediate = c("exclude", "susceptible", "resistant"),
   conf = 0.95,
   seed = NULL,
   split = "test",
-  min_groups = 20
+  min_groups = 20,
+  group = NULL
 )
 }
 \arguments{
@@ -24,7 +25,7 @@ amr_paired_compare(
 reported as \code{models[2] - models[1]}. If \code{NULL}, the data must contain
 exactly two models.}
 
-\item{group}{Column defining the resampling unit, e.g. \code{"isolate_id"}
+\item{resample_by}{Column defining the resampling unit, e.g. \code{"isolate_id"}
 (default), \code{"lineage"} or \code{"genomic_cluster"}. Rows with a missing
 group label are treated as their own single-isolate groups.}
 
@@ -49,6 +50,8 @@ performance by accident. Use \code{NULL} to evaluate all rows.}
 
 \item{min_groups}{Strata with fewer independent groups than this are
 flagged: cluster bootstrap intervals are unreliable with few clusters.}
+
+\item{group}{Deprecated; use \code{resample_by}.}
 }
 \value{
 An object of class \code{amr_paired_compare}: a data frame with

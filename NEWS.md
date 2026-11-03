@@ -10,6 +10,10 @@
 * `amr_species_eval()` is renamed `amr_evaluate()`: it stratifies by model,
   dataset, species and antimicrobial, and is the main evaluation function.
   The old name still works, with a deprecation warning.
+* `amr_bootstrap()` and `amr_paired_compare()`: the resampling unit argument
+  is renamed from `group` to `resample_by`, to pair with `weight_by` and to
+  avoid confusion with `group` in `amr_validate_splits()`. `group =` still
+  works, with a deprecation warning.
 
 # AMRvalid 0.3.0
 

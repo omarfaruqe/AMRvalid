@@ -23,7 +23,7 @@ test_that("provenance records split checks, bootstrap and calibration", {
   x <- r$x[r$x$dataset_id == "internal", ]
   sc <- amr_validate_splits(x, train_manifest = r$sim$train_manifest, group = "lineage",
                             claimed_design = "group")
-  b <- amr_bootstrap(x[x$model_id == "marker/lineage", ], group = "lineage", B = 20, seed = 1)
+  b <- amr_bootstrap(x[x$model_id == "marker/lineage", ], resample_by = "lineage", B = 20, seed = 1)
   cal <- amr_calibration(x)
   p <- amr_provenance(x, sc, b, cal)
   expect_match(p$value[p$item == "Claimed validation design"], "NOT consistent")
@@ -39,7 +39,7 @@ test_that("report contains every supplied section and the TRIPOD+AI table", {
   sc <- amr_validate_splits(x, train_manifest = r$sim$train_manifest, group = "lineage")
   cal <- amr_calibration(x)
   d <- amr_distance_eval(x, r$sim$distances, train_manifest = r$sim$train_manifest)
-  b <- amr_bootstrap(x, group = "lineage", B = 20, threshold = 0.5, seed = 1)
+  b <- amr_bootstrap(x, resample_by = "lineage", B = 20, threshold = 0.5, seed = 1)
   txt <- amr_report(x, e, sc, cal, d, b, dataset_info = list(source = "simulation"))
   for (heading in c("## Data", "## Validation checks", "## Split integrity", "## Performance by stratum",
                     "## Calibration", "## Performance by distance to training", "## Group-aware intervals",

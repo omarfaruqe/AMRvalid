@@ -143,8 +143,8 @@ isolates).
 
 ```{r bootstrap}
 ext <- x[x$model_id == "marker/lineage" & x$dataset_id == "external", ]
-by_isolate <- as.data.frame(amr_bootstrap(ext, group = "isolate_id", B = 300, seed = 1))
-by_lineage <- as.data.frame(amr_bootstrap(ext, group = "lineage", B = 300, seed = 1))
+by_isolate <- as.data.frame(amr_bootstrap(ext, resample_by = "isolate_id", B = 300, seed = 1))
+by_lineage <- as.data.frame(amr_bootstrap(ext, resample_by = "lineage", B = 300, seed = 1))
 ci <- rbind(
   isolate = unlist(by_isolate[by_isolate$metric == "roc_auc", c("estimate", "lower", "upper")]),
   lineage = unlist(by_lineage[by_lineage$metric == "roc_auc", c("estimate", "lower", "upper")])
@@ -163,5 +163,5 @@ overstates precision.
    claim is about new strains.
 3. Use `amr_distance_eval()` to show how performance depends on similarity to
    the training data.
-4. Use `amr_bootstrap()` with `group = "lineage"` (or genomic clusters) so the
+4. Use `amr_bootstrap()` with `resample_by = "lineage"` (or genomic clusters) so the
    uncertainty reflects the number of independent lineages, not isolates.

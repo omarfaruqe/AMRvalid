@@ -70,10 +70,10 @@ amr_validate_splits(x, train_manifest = train_ids, claimed_design = "group")
 amr_distance_eval(x, distances = dist, train_manifest = train_ids, threshold = 0.5)
 
 # Intervals that resample whole lineages rather than single isolates
-amr_bootstrap(x, group = "lineage", B = 2000, threshold = 0.5, seed = 1)
+amr_bootstrap(x, resample_by = "lineage", B = 2000, threshold = 0.5, seed = 1)
 
 # Two models on the same isolates, with paired cluster-bootstrap differences
-amr_paired_compare(x, models = c("old", "new"), group = "lineage", threshold = 0.5)
+amr_paired_compare(x, models = c("old", "new"), resample_by = "lineage", threshold = 0.5)
 ```
 
 ## Roadmap

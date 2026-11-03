@@ -6,7 +6,7 @@
 #' isolates share outcomes; resampling clusters respects that dependence.
 #'
 #' @inheritParams amr_evaluate
-#' @param group Column defining the resampling unit, e.g. `"isolate_id"`
+#' @param resample_by Column defining the resampling unit, e.g. `"isolate_id"`
 #'   (default), `"lineage"` or `"genomic_cluster"`. Rows with a missing
 #'   group label are treated as their own single-isolate groups.
 #' @param B Number of bootstrap replicates.
@@ -14,6 +14,7 @@
 #'   state is restored afterwards.
 #' @param min_groups Strata with fewer independent groups than this are
 #'   flagged: cluster bootstrap intervals are unreliable with few clusters.
+#' @param group Deprecated; use `resample_by`.
 #'
 #' @details
 #' Metrics are computed on S/R categories after applying the `intermediate`
@@ -44,15 +45,16 @@
 #'   probability = runif(30),
 #'   lineage = rep(sprintf("ST%d", 1:10), each = 3)
 #' )
-#' amr_bootstrap(amr_import_predictions(preds), group = "lineage", B = 200,
+#' amr_bootstrap(amr_import_predictions(preds), resample_by = "lineage", B = 200,
 #'               threshold = 0.5, seed = 1)
-amr_bootstrap <- function(x, group = "isolate_id", B = 2000, threshold = NULL,
+amr_bootstrap <- function(x, resample_by = "isolate_id", B = 2000, threshold = NULL,
                           intermediate = c("exclude", "susceptible", "resistant"),
-                          conf = 0.95, seed = NULL, split = "test", min_groups = 20) {
+                          conf = 0.95, seed = NULL, split = "test", min_groups = 20, group = NULL) {
   check_amr_data(x)
   intermediate <- match.arg(intermediate)
   check_B(B)
-  if (!group %in% names(x)) stop("Group column '", group, "' not found.", call. = FALSE)
+  group <- resolve_resample_by(resample_by, group)
+  if (!group %in% names(x)) stop("Resampling column '", group, "' not found.", call. = FALSE)
   ptype <- x$prediction_type[1]
   if (identical(ptype, "mic")) stop("Bootstrap of MIC metrics is not implemented yet.", call. = FALSE)
   check_threshold(threshold, ptype)
@@ -99,7 +101,7 @@ amr_bootstrap <- function(x, group = "isolate_id", B = 2000, threshold = NULL,
   out$drug_name <- suppressMessages(AMR::ab_name(out$drug, language = "en"))
   rownames(out) <- NULL
   structure(out, class = c("amr_bootstrap", "data.frame"),
-            settings = list(group = group, B = B, threshold = threshold, intermediate = intermediate,
+            settings = list(resample_by = group, B = B, threshold = threshold, intermediate = intermediate,
                             conf = conf, seed = seed, split = split, min_groups = min_groups))
 }
 
@@ -109,7 +111,7 @@ print.amr_bootstrap <- function(x, digits = 3, ...) {
     return(print(as.data.frame(unclass_df(x)), ...))
   }
   s <- attr(x, "settings")
-  cat("<amr_bootstrap> resampling unit: ", s$group, " | B = ", s$B, " | ", s$conf * 100,
+  cat("<amr_bootstrap> resampling unit: ", s$resample_by, " | B = ", s$B, " | ", s$conf * 100,
       "% percentile intervals | threshold: ", if (is.null(s$threshold)) "none" else s$threshold, "\n", sep = "")
   d <- as.data.frame(x)
   fmt <- function(v) ifelse(is.na(v), "", formatC(v, digits = digits, format = "f"))
@@ -167,13 +169,14 @@ print.amr_bootstrap <- function(x, digits = 3, ...) {
 #' preds$drug <- "ciprofloxacin"
 #' amr_paired_compare(amr_import_predictions(preds), models = c("old", "new"),
 #'                    threshold = 0.5, B = 200, seed = 1)
-amr_paired_compare <- function(x, models = NULL, group = "isolate_id", B = 2000, threshold = NULL,
+amr_paired_compare <- function(x, models = NULL, resample_by = "isolate_id", B = 2000, threshold = NULL,
                                intermediate = c("exclude", "susceptible", "resistant"),
-                               conf = 0.95, seed = NULL, split = "test", min_groups = 20) {
+                               conf = 0.95, seed = NULL, split = "test", min_groups = 20, group = NULL) {
   check_amr_data(x)
   intermediate <- match.arg(intermediate)
   check_B(B)
-  if (!group %in% names(x)) stop("Group column '", group, "' not found.", call. = FALSE)
+  group <- resolve_resample_by(resample_by, group)
+  if (!group %in% names(x)) stop("Resampling column '", group, "' not found.", call. = FALSE)
   ptype <- x$prediction_type[1]
   if (identical(ptype, "mic")) stop("Paired comparison of MIC predictions is not implemented yet.", call. = FALSE)
   if (is.null(models)) models <- unique(x$model_id)
@@ -252,7 +255,7 @@ amr_paired_compare <- function(x, models = NULL, group = "isolate_id", B = 2000,
   out$drug_name <- suppressMessages(AMR::ab_name(out$drug, language = "en"))
   rownames(out) <- NULL
   structure(out, class = c("amr_paired_compare", "data.frame"),
-            settings = list(models = models, group = group, B = B, threshold = threshold,
+            settings = list(models = models, resample_by = group, B = B, threshold = threshold,
                             intermediate = intermediate, conf = conf, seed = seed, split = split,
                             min_groups = min_groups))
 }
@@ -263,7 +266,7 @@ print.amr_paired_compare <- function(x, digits = 3, ...) {
     return(print(as.data.frame(unclass_df(x)), ...))
   }
   s <- attr(x, "settings")
-  cat("<amr_paired_compare> ", s$models[2], " - ", s$models[1], " | resampling unit: ", s$group,
+  cat("<amr_paired_compare> ", s$models[2], " - ", s$models[1], " | resampling unit: ", s$resample_by,
       " | B = ", s$B, " | ", s$conf * 100, "% percentile intervals\n", sep = "")
   d <- as.data.frame(x)
   fmt <- function(v) ifelse(is.na(v), "", formatC(v, digits = digits, format = "f"))
@@ -362,4 +365,13 @@ local_seed <- function(seed) {
 unclass_df <- function(x) {
   class(x) <- "data.frame"
   x
+}
+
+# Accept the deprecated `group` argument with a warning.
+resolve_resample_by <- function(resample_by, group) {
+  if (!is.null(group)) {
+    warning("`group` is deprecated; use `resample_by` instead.", call. = FALSE)
+    return(group)
+  }
+  resample_by
 }

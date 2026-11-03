@@ -34,8 +34,8 @@ test_that("bootstrap is reproducible and leaves the global RNG untouched", {
 
 test_that("cluster bootstrap gives wider intervals than isolate bootstrap", {
   x <- amr_import_predictions(clustered_toy())
-  iso <- amr_bootstrap(x, group = "isolate_id", B = 1000, threshold = 0.5, seed = 1)
-  lin <- amr_bootstrap(x, group = "lineage", B = 1000, threshold = 0.5, seed = 1)
+  iso <- amr_bootstrap(x, resample_by = "isolate_id", B = 1000, threshold = 0.5, seed = 1)
+  lin <- amr_bootstrap(x, resample_by = "lineage", B = 1000, threshold = 0.5, seed = 1)
   w <- function(r) diff(unlist(r[r$metric == "accuracy", c("lower", "upper")]))
   expect_gt(w(lin), 1.5 * w(iso))
   expect_equal(unique(lin$n_groups), 20)
@@ -46,7 +46,7 @@ test_that("few groups are flagged and missing groups become singletons", {
   d <- clustered_toy()
   d$lineage <- rep(c("A", "B", "C", "D"), 25)
   d$lineage[1:4] <- NA
-  r <- amr_bootstrap(amr_import_predictions(d), group = "lineage", B = 50, threshold = 0.5, seed = 1)
+  r <- amr_bootstrap(amr_import_predictions(d), resample_by = "lineage", B = 50, threshold = 0.5, seed = 1)
   expect_true(all(r$few_groups))
   expect_equal(unique(r$n_groups), 8)
   expect_output(print(r), "Fewer than 20")
@@ -65,7 +65,9 @@ test_that("zero-width intervals from perfect predictions are flagged", {
 
 test_that("bootstrap argument checks", {
   x <- amr_import_predictions(clustered_toy())
-  expect_error(amr_bootstrap(x, group = "nope"), "not found")
+  expect_error(amr_bootstrap(x, resample_by = "nope"), "not found")
+  expect_warning(old <- amr_bootstrap(x, group = "lineage", B = 20, seed = 1), "deprecated")
+  expect_equal(old$lower, amr_bootstrap(x, resample_by = "lineage", B = 20, seed = 1)$lower)
   expect_error(amr_bootstrap(x, B = 3), "at least 10")
   r <- amr_bootstrap(x, B = 20, seed = 1)
   expect_false("sensitivity" %in% r$metric)
@@ -91,7 +93,7 @@ test_that("identical models give zero differences", {
 
 test_that("a better model shows a positive paired difference and McNemar p", {
   r <- amr_paired_compare(amr_import_predictions(paired_toy()), models = c("old", "new"),
-                          group = "lineage", B = 500, threshold = 0.5, seed = 1)
+                          resample_by = "lineage", B = 500, threshold = 0.5, seed = 1)
   expect_s3_class(r, "amr_paired_compare")
   acc <- r[r$metric == "accuracy", ]
   expect_equal(acc$difference, 0.25)

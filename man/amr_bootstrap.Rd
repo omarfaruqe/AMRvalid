@@ -6,20 +6,21 @@
 \usage{
 amr_bootstrap(
   x,
-  group = "isolate_id",
+  resample_by = "isolate_id",
   B = 2000,
   threshold = NULL,
   intermediate = c("exclude", "susceptible", "resistant"),
   conf = 0.95,
   seed = NULL,
   split = "test",
-  min_groups = 20
+  min_groups = 20,
+  group = NULL
 )
 }
 \arguments{
 \item{x}{An \code{amr_data} object.}
 
-\item{group}{Column defining the resampling unit, e.g. \code{"isolate_id"}
+\item{resample_by}{Column defining the resampling unit, e.g. \code{"isolate_id"}
 (default), \code{"lineage"} or \code{"genomic_cluster"}. Rows with a missing
 group label are treated as their own single-isolate groups.}
 
@@ -46,6 +47,8 @@ performance by accident. Use \code{NULL} to evaluate all rows.}
 
 \item{min_groups}{Strata with fewer independent groups than this are
 flagged: cluster bootstrap intervals are unreliable with few clusters.}
+
+\item{group}{Deprecated; use \code{resample_by}.}
 }
 \value{
 An object of class \code{amr_bootstrap}: a data frame with the
@@ -83,6 +86,6 @@ preds <- data.frame(
   probability = runif(30),
   lineage = rep(sprintf("ST\%d", 1:10), each = 3)
 )
-amr_bootstrap(amr_import_predictions(preds), group = "lineage", B = 200,
+amr_bootstrap(amr_import_predictions(preds), resample_by = "lineage", B = 200,
               threshold = 0.5, seed = 1)
 }

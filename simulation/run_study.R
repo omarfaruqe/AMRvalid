@@ -43,7 +43,7 @@ auc_of <- function(x) {
 # Each bootstrap gets its own seed, so results do not depend on the number of
 # cores or on the order in which replicates run.
 boot_ci <- function(x, group, seed) {
-  b <- as.data.frame(amr_bootstrap(x, group = group, B = B, split = NULL, seed = seed))
+  b <- as.data.frame(amr_bootstrap(x, resample_by = group, B = B, split = NULL, seed = seed))
   b <- b[b$metric == "roc_auc", ]
   c(lower = b$lower, upper = b$upper, n_groups = b$n_groups)
 }
