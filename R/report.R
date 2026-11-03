@@ -166,8 +166,12 @@ amr_provenance <- function(x, ..., model_info = list(), dataset_info = list()) {
         "not assessable", "12d")
   }
   if (is.null(res$amr_calibration)) {
-    add("Analysis", "Calibration", if (identical(d$prediction_type[1], "score")) "Not assessed; run amr_calibration()"
-        else "Not applicable (no probabilities)", "not assessable", "12e")
+    if (identical(d$prediction_type[1], "score")) {
+      add("Analysis", "Calibration", "Not assessed; run amr_calibration()", "not assessable", "12e")
+    } else {
+      add("Analysis", "Calibration", "Not applicable (predictions are categories, not probabilities)",
+          "checked", "12e")
+    }
   }
 
   # Availability -----------------------------------------------------------------

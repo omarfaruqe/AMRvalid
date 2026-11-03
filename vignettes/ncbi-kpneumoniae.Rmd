@@ -1,0 +1,172 @@
+---
+title: "Evaluating rule-based predictors on public data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Evaluating rule-based predictors on public data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+This vignette evaluates genome-based predictions on real, public data:
+*Klebsiella pneumoniae* isolates from NCBI Pathogen Detection with laboratory
+susceptibility results for meropenem and ciprofloxacin. The predictions come
+from simple rules applied to AMRFinderPlus genotypes, two per antimicrobial
+(see `?amr_example_data`). The rules are illustrative; the point is the
+evaluation.
+
+```{r setup}
+library(AMRvalid)
+d <- amr_example_data()
+x <- amr_import_predictions(d)
+x
+```
+
+## Step 1: what is in the data?
+
+```{r summary}
+s <- amr_data_summary(x)
+s[, c("model_id", "drug_name", "n_isolates", "n_S", "n_I_SDD", "n_R", "prevalence_R")]
+```
+
+Isolates come from `r length(unique(d$bioproject))` studies (BioProjects).
+Many are relatives: `r sum(!is.na(unique(d[, c("isolate_id", "genomic_cluster")])$genomic_cluster))`
+isolates fall into `r length(unique(na.omit(d$genomic_cluster)))` NCBI SNP
+clusters, and the largest cluster holds
+`r max(table(unique(d[, c("isolate_id", "genomic_cluster")])$genomic_cluster))`
+isolates. That structure matters below.
+
+```{r validate}
+validate_amr_data(x)
+```
+
+The reference contains intermediate (I) results. The rules only predict S
+or R, so I is handled explicitly: binary metrics exclude it (the default),
+and the AST agreement metrics count it as a minor error.
+
+## Step 2: performance per predictor
+
+```{r eval}
+e <- amr_species_eval(x)
+key <- c("sensitivity", "specificity", "categorical_agreement",
+         "very_major_error", "major_error", "minor_error")
+tab <- as.data.frame(e)[e$metric %in% key, c("drug_name", "model_id", "metric", "estimate", "lower", "upper")]
+tab[, c("estimate", "lower", "upper")] <- round(tab[, c("estimate", "lower", "upper")], 3)
+rownames(tab) <- NULL
+tab
+```
+
+The broader rule for each antimicrobial trades very major errors (resistant
+isolates called susceptible) for major errors (susceptible isolates called
+resistant).
+
+## Step 3: do outbreak clones flatter the results?
+
+Public collections over-represent outbreaks. Weighting each SNP cluster
+equally (isolates outside a cluster count as their own group) shows how the
+rules perform across distinct strains rather than across isolates.
+
+```{r weighting}
+k <- c("sensitivity", "specificity", "very_major_error", "major_error")
+iso <- as.data.frame(amr_species_eval(x))
+clu <- as.data.frame(amr_species_eval(x, weight_by = "genomic_cluster"))
+cmp <- merge(iso[iso$metric %in% k, c("model_id", "metric", "estimate")],
+             clu[clu$metric %in% k, c("model_id", "metric", "estimate")],
+             by = c("model_id", "metric"), suffixes = c("_isolates", "_clusters"))
+cmp$change <- cmp$estimate_clusters - cmp$estimate_isolates
+cmp[, 3:5] <- round(cmp[, 3:5], 3)
+cmp <- cmp[order(cmp$metric, cmp$model_id), ]
+rownames(cmp) <- NULL
+cmp
+```
+
+The very major error rate is higher for all four rules once each cluster
+counts once, and QRDR-only sensitivity falls from 0.79 to 0.72: well-predicted
+outbreak clones make the isolate-level numbers look better than performance
+across distinct strains.
+
+## Step 4: intervals that respect clustering
+
+```{r bootstrap}
+mero <- x[x$drug == "MEM", ]
+b_iso <- amr_bootstrap(mero, group = "isolate_id", B = 300, seed = 1)
+b_clu <- amr_bootstrap(mero, group = "genomic_cluster", B = 300, seed = 1)
+vme <- function(b, unit) {
+  b <- as.data.frame(b)
+  r <- b[b$metric == "very_major_error", ]
+  data.frame(model = r$model_id, resampled = unit, groups = r$n_groups,
+             estimate = round(r$estimate, 3), lower = round(r$lower, 3), upper = round(r$upper, 3))
+}
+rbind(vme(b_iso, "isolates"), vme(b_clu, "SNP clusters"))
+```
+
+Resampling clusters rather than isolates widens the intervals, because the
+`r b_iso$n_groups[1]` isolates carry the information of only
+`r b_clu$n_groups[1]` independent groups.
+
+## Step 5: comparing the two meropenem rules on the same isolates
+
+```{r paired}
+amr_paired_compare(mero, models = c("carbapenemase genes", "carbapenemase or porin + ESBL/AmpC"),
+                   group = "genomic_cluster", B = 300, seed = 1)
+```
+
+The broader rule lowers the very major error rate and raises the major error
+rate by a similar amount, leaving overall accuracy unchanged. Which rule is
+preferable depends on which error matters more in practice.
+
+## Step 6: stability over time
+
+```{r time}
+x$period <- cut(d$collection_year, c(-Inf, 2016, 2020, Inf), labels = c("up to 2016", "2017-2020", "2021 on"))
+per <- lapply(split(seq_len(nrow(x)), x$period), function(i) {
+  r <- as.data.frame(amr_species_eval(x[i, ], validate = FALSE))
+  r <- r[r$metric %in% c("n", "very_major_error"), c("model_id", "metric", "estimate")]
+  r
+})
+per <- do.call(rbind, Map(function(p, nm) cbind(period = nm, p), per, names(per)))
+w <- reshape(per, idvar = c("period", "model_id"), timevar = "metric", direction = "wide")
+names(w) <- sub("estimate.", "", names(w))
+w$very_major_error <- round(w$very_major_error, 3)
+w$period <- factor(w$period, levels = levels(x$period))
+w <- w[order(w$model_id, w$period), ]
+rownames(w) <- NULL
+w
+```
+
+Isolates without a collection year are left out of this table. The QRDR-only
+rule misses far more resistant isolates collected from 2021 on, while the rule
+that also counts plasmid-mediated quinolone resistance genes stays accurate.
+Changes over time can reflect new resistance mechanisms, changing breakpoints
+or different submitting studies; the table shows that performance is not
+stable, not why.
+
+## Step 7: a report for the paper
+
+```{r report}
+dataset_info <- list(source = "NCBI Pathogen Detection PDG000000012.2568",
+                     breakpoint_standard = "As submitted to BioSample (not recorded)")
+model_info <- list(description = "Rule-based interpretation of AMRFinderPlus calls",
+                   training_data = "None (rules, not trained models)",
+                   threshold_selection = "Not applicable (binary rules)")
+report <- amr_report(x, e, b_clu, dataset_info = dataset_info, model_info = model_info,
+                     file = file.path(tempdir(), "ncbi-report.md"))
+p <- amr_provenance(x, e, b_clu, dataset_info = dataset_info, model_info = model_info)
+table(p$status)
+p[p$status == "not assessable", c("tripod_item", "item")]
+```
+
+The report lists every TRIPOD+AI item it covers and flags the ones still
+missing. The list above is the author's to-do list before submission.
+
+## Caveats
+
+* Phenotypes were interpreted by the submitting laboratories under breakpoints
+  that are not recorded, and may differ between studies.
+* The isolates are those with submitted antibiograms, not a random sample.
+* The rules have no training data, so no split checks apply here; for trained
+  models, start with `amr_validate_splits()` (see the vignette on
+  population-aware evaluation).

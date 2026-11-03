@@ -18,6 +18,14 @@
 * `amr_report()`: Markdown or HTML report with data summary, validation and
   split checks, performance, calibration, distance-to-training results,
   group-aware intervals, detected limitations and TRIPOD+AI coverage.
+* `amr_example_data()`: real, public example data. Meropenem and
+  ciprofloxacin phenotypes for 1,255 *Klebsiella pneumoniae* isolates from
+  NCBI Pathogen Detection, with predictions from two rule-based predictors
+  per antimicrobial applied to AMRFinderPlus genotypes, SNP clusters, years
+  and countries. Built by `data-raw/ncbi_kpneumoniae.R`.
+* New vignette, "Evaluating rule-based predictors on public data".
+* Provenance records calibration as not applicable, rather than missing,
+  for categorical predictions.
 * Simulation study: each bootstrap is now seeded, so results no longer depend
   on the number of CPU cores. Re-run results: isolate-level intervals covered
   the true AUC in 49-87% of replicates, lineage-level intervals in 86-93%;
