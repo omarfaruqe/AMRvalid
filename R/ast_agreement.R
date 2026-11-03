@@ -6,6 +6,7 @@
 #' @inheritParams amr_metrics
 #' @param weight_by Optional column for cluster-weighted rates; see
 #'   [amr_metrics()].
+#' @param split Which partition to evaluate; see [amr_metrics()].
 #' @param vme_denominator Denominator for very major and major error rates:
 #'   `"class"` (default) divides very major errors by reference-resistant
 #'   isolates and major errors by reference-susceptible isolates;
@@ -52,8 +53,10 @@
 #' )
 #' amr_ast_agreement(amr_import_predictions(preds))
 amr_ast_agreement <- function(x, threshold = NULL, vme_denominator = c("class", "all"),
-                              ci = c("wilson", "clopper-pearson"), conf = 0.95, weight_by = NULL) {
+                              ci = c("wilson", "clopper-pearson"), conf = 0.95, weight_by = NULL,
+                              split = "test") {
   check_amr_data(x)
+  x <- select_split(x, split)
   vme_denominator <- match.arg(vme_denominator)
   ci <- match.arg(ci)
   ptype <- x$prediction_type[1]

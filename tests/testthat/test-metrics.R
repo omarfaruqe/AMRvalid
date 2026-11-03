@@ -58,3 +58,17 @@ test_that("single-class strata give NA rather than errors", {
   expect_true(is.na(get(m, "sensitivity")))
   expect_true(is.na(get(m, "roc_auc")))
 })
+
+test_that("only test rows are evaluated by default", {
+  d <- rbind(cbind(toy_scores(), split = "test"),
+             transform(cbind(toy_scores(), split = "train"), isolate_id = paste0(isolate_id, "t"),
+                       probability = 1 - probability))
+  x <- amr_import_predictions(d)
+  expect_equal(get(amr_metrics(x, threshold = 0.5), "n"), 10)
+  expect_equal(get(amr_metrics(x, threshold = 0.5), "sensitivity"), 3 / 4)
+  expect_equal(get(amr_metrics(x, threshold = 0.5, split = NULL), "n"), 20)
+  a <- amr_ast_agreement(x, threshold = 0.5)
+  expect_equal(a$estimate[a$metric == "n"], 10)
+  expect_equal(amr_ast_agreement(x, threshold = 0.5, split = NULL)$estimate[1], 20)
+  expect_error(amr_metrics(x, split = "validation"), "No rows")
+})

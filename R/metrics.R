@@ -21,6 +21,9 @@
 #'   `npv_at_target_prevalence`, computed from sensitivity and specificity,
 #'   because PPV and NPV depend on prevalence and public collections often
 #'   over-represent resistant isolates.
+#' @param split Which partition to evaluate when a `split` column exists.
+#'   Defaults to `"test"`, so training predictions are never counted as
+#'   performance by accident. Use `NULL` to evaluate all rows.
 #' @param weight_by Optional column (e.g. `"genomic_cluster"` or
 #'   `"lineage"`) for cluster-weighted metrics: every group contributes a
 #'   total weight of 1, shared equally by its isolates, so a large outbreak
@@ -72,8 +75,9 @@
 #' amr_metrics(x, threshold = 0.5, weight_by = "lineage")
 amr_metrics <- function(x, threshold = NULL, intermediate = c("exclude", "susceptible", "resistant"),
                         ci = c("wilson", "clopper-pearson"), conf = 0.95,
-                        target_prevalence = NULL, weight_by = NULL) {
+                        target_prevalence = NULL, weight_by = NULL, split = "test") {
   check_amr_data(x)
+  x <- select_split(x, split)
   intermediate <- match.arg(intermediate)
   ci <- match.arg(ci)
   ptype <- x$prediction_type[1]

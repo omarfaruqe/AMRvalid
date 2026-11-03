@@ -11,7 +11,8 @@ amr_metrics(
   ci = c("wilson", "clopper-pearson"),
   conf = 0.95,
   target_prevalence = NULL,
-  weight_by = NULL
+  weight_by = NULL,
+  split = "test"
 )
 }
 \arguments{
@@ -42,6 +43,10 @@ over-represent resistant isolates.}
 total weight of 1, shared equally by its isolates, so a large outbreak
 clone counts as much as a single sporadic isolate. Rows with a missing
 label are their own group.}
+
+\item{split}{Which partition to evaluate when a \code{split} column exists.
+Defaults to \code{"test"}, so training predictions are never counted as
+performance by accident. Use \code{NULL} to evaluate all rows.}
 }
 \value{
 A data frame with one row per metric and columns \code{metric},

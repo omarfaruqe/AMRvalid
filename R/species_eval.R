@@ -60,13 +60,14 @@ amr_species_eval <- function(x, threshold = NULL, intermediate = c("exclude", "s
     res <- list()
     if (!identical(ptype, "mic")) {
       m <- amr_metrics(sub, threshold = threshold, intermediate = intermediate, ci = ci, conf = conf,
-                       target_prevalence = target_prevalence, weight_by = weight_by)
+                       target_prevalence = target_prevalence, weight_by = weight_by, split = NULL)
       m$family <- "ml"
       res[[1]] <- m
     }
     has_categories <- !identical(ptype, "score") || !is.null(threshold)
     if (has_categories && (!identical(ptype, "mic") || "truth_mic" %in% names(sub))) {
       a <- amr_ast_agreement(sub, threshold = threshold, vme_denominator = vme_denominator, weight_by = weight_by,
+                             split = NULL,
                              ci = ci, conf = conf)
       a <- a[a$metric != "n", , drop = FALSE]
       a$family <- "ast"
@@ -87,7 +88,7 @@ amr_species_eval <- function(x, threshold = NULL, intermediate = c("exclude", "s
             settings = list(threshold = threshold, intermediate = intermediate,
                             vme_denominator = vme_denominator, ci = ci, conf = conf,
                             split = split, prediction_type = ptype,
-                            target_prevalence = target_prevalence, weight_by = weight_by))
+                            target_prevalence = target_prevalence, weight_by = weight_by, split = NULL))
 }
 
 #' @export

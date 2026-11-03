@@ -10,7 +10,8 @@ amr_ast_agreement(
   vme_denominator = c("class", "all"),
   ci = c("wilson", "clopper-pearson"),
   conf = 0.95,
-  weight_by = NULL
+  weight_by = NULL,
+  split = "test"
 )
 }
 \arguments{
@@ -33,6 +34,8 @@ differ, so always report which one you used.}
 
 \item{weight_by}{Optional column for cluster-weighted rates; see
 \code{\link[=amr_metrics]{amr_metrics()}}.}
+
+\item{split}{Which partition to evaluate; see \code{\link[=amr_metrics]{amr_metrics()}}.}
 }
 \value{
 A data frame with columns \code{metric}, \code{estimate}, \code{lower},

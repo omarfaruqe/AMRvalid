@@ -1,3 +1,10 @@
+# AMRvalid 0.3.0.9000
+
+* `amr_metrics()` and `amr_ast_agreement()` now evaluate only `split = "test"`
+  rows by default, like the other evaluation functions. Previously they used
+  every row, so training predictions could be counted as performance. Use
+  `split = NULL` for the old behaviour.
+
 # AMRvalid 0.3.0
 
 Calibration, transferability and reporting.
