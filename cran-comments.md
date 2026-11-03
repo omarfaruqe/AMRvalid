@@ -11,7 +11,7 @@ structure of bacterial isolates. It does not train models.
 * local: macOS (aarch64), R 4.6.2
 * GitHub Actions: macOS-latest (release), windows-latest (release),
   ubuntu-latest (devel, release, oldrel-1)
-* win-builder: R-devel and R-release (to be completed before submission)
+* win-builder: R-devel (2026-11-02 r90827 ucrt)
 
 ## R CMD check results
 
@@ -19,6 +19,10 @@ structure of bacterial isolates. It does not train models.
 
 * checking CRAN incoming feasibility ... NOTE
   New submission
+
+  On win-builder the NOTE also listed "et" and "al" as possibly misspelled
+  words in DESCRIPTION. They come from the reference "Collins et al. (2024)"
+  and are spelled correctly.
 
 ## Notes for reviewers
 

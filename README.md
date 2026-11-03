@@ -86,7 +86,7 @@ amr_paired_compare(x, models = c("old", "new"), resample_by = "lineage", thresho
 | 0.3.0 | Calibration, prevalence adjustment, cluster weighting, provenance and TRIPOD+AI-aligned reporting, public example data and real-data vignette (done) |
 | 1.0.0 | API review (done), CRAN submission (in progress); software paper next |
 
-The full design is in [`docs/AMRvalid_Revised_Architecture_v3.docx`](docs/AMRvalid_Revised_Architecture_v3.docx).
+The full design is in [`docs/AMRvalid_Revised_Architecture_v3.docx`](https://github.com/omarfaruqe/AMRvalid/blob/main/docs/AMRvalid_Revised_Architecture_v3.docx).
 
 ## Licence
 

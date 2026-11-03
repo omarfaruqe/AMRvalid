@@ -4,7 +4,7 @@ Version: 1.0.0
 Authors@R:
     person("Md Omar", "Faruqe", , "faruqe@ru.ac.bd", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-1226-7226"))
-Description: Evaluates antimicrobial resistance (AMR) phenotype predictions
+Description: Evaluates antimicrobial resistance phenotype predictions
     made by external models and rule-based tools against phenotypic
     reference results, accounting for the population structure of bacterial
     isolates. Provides a documented data contract and input validation;
