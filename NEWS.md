@@ -16,6 +16,9 @@
   works, with a deprecation warning.
 * `amr_evaluate(by = )` evaluates subgroups, such as country or time period,
   within each model, dataset, species and antimicrobial stratum.
+* New `plot()` methods for `amr_evaluate()`, `amr_distance_eval()`,
+  `amr_bootstrap()` and `amr_paired_compare()` results, using base graphics
+  and a colourblind-safe palette assigned to models in a fixed order.
 
 # AMRvalid 0.3.0
 
