@@ -59,3 +59,39 @@ test_that("the old name amr_species_eval() still works with a deprecation warnin
   expect_warning(e <- amr_species_eval(x, threshold = 0.5), "amr_evaluate")
   expect_equal(as.data.frame(e), as.data.frame(amr_evaluate(x, threshold = 0.5)))
 })
+
+test_that("by = evaluates subgroups within each stratum", {
+  d <- toy_scores()
+  d$country <- c("CA", "CA", "US", "US", "CA", "CA", "US", "US", NA, "CA")
+  x <- amr_import_predictions(d)
+  e <- amr_evaluate(x, threshold = 0.5, by = "country")
+  expect_setequal(unique(e$country), c("CA", "US", "(missing)"))
+  n <- e$estimate[e$metric == "n"]
+  names(n) <- e$country[e$metric == "n"]
+  expect_equal(unname(n[c("CA", "US", "(missing)")]), c(5, 4, 1))
+  # CA: isolates 1, 2, 5, 6, 10 -> truth R, R, S, S, S; predictions R, R, R, S, S
+  ca <- e[e$country == "CA", ]
+  expect_equal(ca$estimate[ca$metric == "sensitivity"], 1)
+  expect_equal(ca$estimate[ca$metric == "specificity"], 2 / 3)
+  expect_output(print(e), "by country")
+  expect_error(amr_evaluate(x, by = "nope"), "not found")
+  expect_error(amr_evaluate(x, by = "drug"), "already strata")
+})
+
+test_that("by = accepts several columns and combines with weighting", {
+  d <- toy_scores()
+  d$country <- rep(c("CA", "US"), 5)
+  d$period <- rep(c("early", "late"), each = 5)
+  d$lineage <- rep(c("L1", "L2"), each = 5)
+  e <- amr_evaluate(amr_import_predictions(d), threshold = 0.5, by = c("country", "period"),
+                    weight_by = "lineage")
+  expect_equal(nrow(unique(e[, c("country", "period")])), 4)
+  expect_equal(sum(e$estimate[e$metric == "n"]), 10)
+})
+
+test_that("factor by-columns keep their level order", {
+  d <- toy_scores()
+  d$period <- factor(rep(c("late", "early"), each = 5), levels = c("early", "late"))
+  e <- amr_evaluate(amr_import_predictions(d), threshold = 0.5, by = "period")
+  expect_equal(unique(e$period), c("early", "late"))
+})

@@ -14,6 +14,8 @@
   is renamed from `group` to `resample_by`, to pair with `weight_by` and to
   avoid confusion with `group` in `amr_validate_splits()`. `group =` still
   works, with a deprecation warning.
+* `amr_evaluate(by = )` evaluates subgroups, such as country or time period,
+  within each model, dataset, species and antimicrobial stratum.
 
 # AMRvalid 0.3.0
 

@@ -122,22 +122,18 @@ preferable depends on which error matters more in practice.
 
 ```{r time}
 x$period <- cut(d$collection_year, c(-Inf, 2016, 2020, Inf), labels = c("up to 2016", "2017-2020", "2021 on"))
-per <- lapply(split(seq_len(nrow(x)), x$period), function(i) {
-  r <- as.data.frame(amr_evaluate(x[i, ], validate = FALSE))
-  r <- r[r$metric %in% c("n", "very_major_error"), c("model_id", "metric", "estimate")]
-  r
-})
-per <- do.call(rbind, Map(function(p, nm) cbind(period = nm, p), per, names(per)))
-w <- reshape(per, idvar = c("period", "model_id"), timevar = "metric", direction = "wide")
-names(w) <- sub("estimate.", "", names(w))
-w$very_major_error <- round(w$very_major_error, 3)
-w$period <- factor(w$period, levels = levels(x$period))
-w <- w[order(w$model_id, w$period), ]
+by_period <- as.data.frame(amr_evaluate(x, by = "period"))
+w <- by_period[by_period$metric == "very_major_error" & by_period$period != "(missing)",
+               c("model_id", "period", "denominator", "estimate", "lower", "upper")]
+names(w)[3] <- "n_resistant"
+w[, 4:6] <- round(w[, 4:6], 3)
 rownames(w) <- NULL
 w
 ```
 
-Isolates without a collection year are left out of this table. The QRDR-only
+`by = "period"` evaluates each period separately within each predictor;
+isolates without a collection year form a `"(missing)"` group, left out of
+this table. The QRDR-only
 rule misses far more resistant isolates collected from 2021 on, while the rule
 that also counts plasmid-mediated quinolone resistance genes stays accurate.
 Changes over time can reflect new resistance mechanisms, changing breakpoints

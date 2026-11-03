@@ -14,7 +14,8 @@ amr_evaluate(
   split = "test",
   validate = TRUE,
   target_prevalence = NULL,
-  weight_by = NULL
+  weight_by = NULL,
+  by = NULL
 )
 }
 \arguments{
@@ -50,16 +51,24 @@ stop if it reports errors.}
 \item{target_prevalence, weight_by}{Passed to \code{\link[=amr_metrics]{amr_metrics()}} (and
 \code{weight_by} to \code{\link[=amr_ast_agreement]{amr_ast_agreement()}}): PPV and NPV at a target
 prevalence, and cluster-weighted metrics.}
+
+\item{by}{Optional column name(s) to evaluate subgroups within each
+stratum, e.g. \code{"country"} or a period column you have added. Missing
+values form their own subgroup, labelled \code{"(missing)"}. Factor columns
+keep their level order in the output. Subgroup results
+are descriptive: small subgroups give wide intervals, and differences
+between subgroups are not evidence of a cause.}
 }
 \value{
 An object of class \code{amr_eval}: a long data frame with the
-stratum columns, \code{species_name}, \code{drug_name}, \code{family}
+stratum columns (and any \code{by} columns), \code{species_name}, \code{drug_name}, \code{family}
 (\code{"ml"} or \code{"ast"}) and the metric columns.
 }
 \description{
 Splits an \code{amr_data} object by model, dataset, species and antimicrobial
-and computes \code{\link[=amr_metrics]{amr_metrics()}} and, where possible, \code{\link[=amr_ast_agreement]{amr_ast_agreement()}}
-in each stratum. There is no pooled headline score.
+(and optionally further columns) and computes \code{\link[=amr_metrics]{amr_metrics()}} and, where
+possible, \code{\link[=amr_ast_agreement]{amr_ast_agreement()}} in each stratum. There is no pooled
+headline score.
 }
 \examples{
 preds <- data.frame(
@@ -69,5 +78,10 @@ preds <- data.frame(
   truth = c("R", "S", "S", "R", "R", "R", "S", "S"),
   probability = c(0.9, 0.2, 0.4, 0.7, 0.8, 0.3, 0.1, 0.6)
 )
-amr_evaluate(amr_import_predictions(preds), threshold = 0.5)
+x <- amr_import_predictions(preds)
+amr_evaluate(x, threshold = 0.5)
+
+# subgroups, e.g. by country of isolation
+x$country <- c("CA", "CA", "US", "US", "CA", "US", "CA", "US")
+amr_evaluate(x, threshold = 0.5, by = "country")
 }
