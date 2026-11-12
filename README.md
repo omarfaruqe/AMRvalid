@@ -2,7 +2,8 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/omarfaruqe/AMRvalid/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/omarfaruqe/AMRvalid/actions/workflows/R-CMD-check.yaml)
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24151080.svg)](https://doi.org/10.5281/zenodo.24151080)
 <!-- badges: end -->
 
 **Population-aware evaluation of antimicrobial resistance (AMR) phenotype predictions.**
@@ -91,3 +92,10 @@ The full design is in [`docs/AMRvalid_Revised_Architecture_v3.docx`](https://git
 ## Licence
 
 MIT © Md Omar Faruqe
+
+## Citation
+
+If you use AMRvalid, please cite it. `citation("AMRvalid")` gives the reference
+in text and BibTeX form. The DOI
+[10.5281/zenodo.24151080](https://doi.org/10.5281/zenodo.24151080) always points
+to the latest release.

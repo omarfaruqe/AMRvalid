@@ -5,10 +5,11 @@ bibentry(
                   comment = c(ORCID = "0000-0002-1226-7226")),
   year = "2026",
   note = paste("R package version", meta$Version),
+  doi = "10.5281/zenodo.24151080",
   url = "https://github.com/omarfaruqe/AMRvalid",
   textVersion = paste0(
     "Faruqe MO (2026). AMRvalid: Population-Aware Evaluation of ",
     "Antimicrobial Resistance Predictions. R package version ", meta$Version,
-    ". https://github.com/omarfaruqe/AMRvalid"
+    ". doi:10.5281/zenodo.24151080"
   )
 )
